@@ -53,7 +53,7 @@ namespace ROM.ObjectDataStorage
         {
             get
             {
-                return $"{FilePath} from mod {ModFolderName} of type {TypeID} for room {RoomID}"
+                return $"{FilePath} from mod {ModFolderName} of type {TypeID} for room {RoomID}";
             }
         }
 

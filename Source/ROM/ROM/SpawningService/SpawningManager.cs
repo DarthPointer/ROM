@@ -39,6 +39,15 @@ namespace ROM.SpawningService
         }
         #endregion
 
+        #region Constructors
+        public SpawningManager(ObjectRegistry objectRegistry, ManualLogSource? logger = null)
+        {
+            TypeSpawners = new();
+            ObjectRegistry = objectRegistry;
+            Logger = logger;
+        }
+        #endregion
+
         #region Methods
         /// <summary>
         /// Spawn objects of the room.
@@ -65,7 +74,7 @@ namespace ROM.SpawningService
                 catch (Exception ex)
                 {
                     Logger?.LogError($"Exception caught while spawning {objectData.FullLogString}\n" +
-                        $"{ex.ToString()}");
+                        $"{ex}");
                 }
             }
         }
