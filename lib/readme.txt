@@ -1,0 +1,1 @@
+Copy all the dependency .dll's here to add them into project references.
