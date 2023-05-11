@@ -10,7 +10,7 @@ namespace ROM.UserInteraction
     internal class IMGUIWindowsContainer : MonoBehaviour
     {
         #region Fields
-        private List<AbstractIMGUIWindow> _windows;
+        private List<IIMGUIWindow> _windows;
         #endregion
 
         #region Properties
@@ -34,7 +34,7 @@ namespace ROM.UserInteraction
         /// </summary>
         /// <param name="window">The window to add.</param>
         /// <returns><see langword="true"/> if the window was unique and added successfully. <see langword="false"/> if the window has already been present and the objects were not altered.</returns>
-        public bool AddWindow(AbstractIMGUIWindow window)
+        public bool AddWindow(IIMGUIWindow window)
         {
             if (_windows.Contains(window))
             {
@@ -50,9 +50,17 @@ namespace ROM.UserInteraction
         /// </summary>
         /// <param name="window">The window to remove.</param>
         /// <returns><see langword="true"/> if the window was removed successfully. <see langword="false"/> if the window was not present in the collection and the objects stayed intact.</returns>
-        public bool RemoveWindow(AbstractIMGUIWindow window)
+        public bool RemoveWindow(IIMGUIWindow window)
         {
             return _windows.Remove(window);
+        }
+
+        /// <summary>
+        /// Remove all windows from its list, so that they won't be drawn by this manager anymore.
+        /// </summary>
+        public void RemoveAllWindows()
+        {
+            _windows.Clear();
         }
 
         /// <summary>
@@ -63,7 +71,7 @@ namespace ROM.UserInteraction
         {
             if (!DisplayWindows) return;
 
-            foreach (AbstractIMGUIWindow window in _windows)
+            foreach (IIMGUIWindow window in _windows)
             {
                 window.Display();
             }

@@ -15,7 +15,7 @@ namespace ROM
         {
             AddItems(
                 new OpLabel(new Vector2(140, 230), new Vector2(140, 30), text: "ROM UI Toggle"),
-                new OpKeyBinder(owner.ToggleRoomSceneUIKeyConfigurable, new Vector2(200, 200), new Vector2(20, 20), controllerNo: OpKeyBinder.BindController.AnyController),
+                new OpKeyBinder(owner.ToggleROMUIKeyConfigurable, new Vector2(200, 200), new Vector2(20, 20), controllerNo: OpKeyBinder.BindController.AnyController),
                 new OpLabel(new Vector2(100, 170), new Vector2(220, 30), text: "Remix menu sucks to deal with, everything else is inside the IMGUI")
                 );
         }

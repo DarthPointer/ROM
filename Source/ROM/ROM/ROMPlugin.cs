@@ -2,6 +2,7 @@
 using ROM.ObjectDataStorage;
 using ROM.SpawningService;
 using ROM.UserInteraction;
+using ROM.UserInteraction.ModMountManagement;
 using System.Security;
 using System.Security.Permissions;
 using UnityEngine;
@@ -23,9 +24,9 @@ namespace ROM
         #region Fields
         private bool _haveHooked = false;
 
-        private ROMOptionInterface _optionInterface;
-        private IMGUIWindowsContainer _windowsContainer;
-        private GameObject _imguiWindowsContainerGO;
+        private ROMOptionInterface? _optionInterface;
+        private IMGUIWindowsContainer? _windowsContainer;
+        private GameObject? _imguiWindowsContainerGO;
 
         private SpawningManager _spawningManager;
         #endregion
@@ -40,19 +41,23 @@ namespace ROM
             }
             _imguiWindowsContainerGO = new GameObject("ROM IMGUI Windows Container", typeof(IMGUIWindowsContainer));
             _windowsContainer = _imguiWindowsContainerGO.GetComponent<IMGUIWindowsContainer>();
-            _windowsContainer.DisplayWindows = true;
-
-            _windowsContainer.AddWindow(new SampleWindow());
-            _windowsContainer.AddWindow(new SampleWindow());
+            _windowsContainer.DisplayWindows = false;
         }
 
         public void Update()
         {
+            if (_optionInterface != null)
+            {
+                if (Input.GetKeyDown(_optionInterface.ToggleROMUIKeyConfigurable.Value) && _windowsContainer != null)
+                {
+                    _windowsContainer.DisplayWindows = !_windowsContainer.DisplayWindows;
+                    Cursor.visible = _windowsContainer.DisplayWindows;
+                }
+            }
         }
 
         private void RainWorld_OnModsInit(On.RainWorld.orig_OnModsInit orig, RainWorld self)
         {
-            On.RainWorld.OnModsInit -= RainWorld_OnModsInit;
             orig(self);
 
             _optionInterface = new ROMOptionInterface();
@@ -60,6 +65,17 @@ namespace ROM
 
             ObjectRegistry objectRegistry = ObjectRegistry.CreateRegistryFromMountFileAsset(ObjectRegistry.ROM_MOUNT_FILE_ASSET_PATH, Logger);
             _spawningManager = new SpawningManager(objectRegistry, Logger);
+
+            if (_windowsContainer == null)
+            {
+                Logger.LogError($"{GetType().Name} somehow had no {nameof(_windowsContainer)} set during {nameof(RainWorld_OnModsInit)}.");
+            }
+            else
+            {
+                _windowsContainer.RemoveAllWindows();
+
+                _windowsContainer.AddWindow(new RegistryMountListWindow(_spawningManager.ObjectRegistry));
+            }
         }
         #endregion
     }

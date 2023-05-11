@@ -10,28 +10,18 @@ namespace ROM
 {
     public class ROMOptionInterface : OptionInterface
     {
-        #region Fields
-        private Configurable<KeyCode> _toggleRoomSceneUIKeyConfigurable;
-        #endregion
-
         #region Properties
-        public Configurable<KeyCode> ToggleRoomSceneUIKeyConfigurable
+        public Configurable<KeyCode> ToggleROMUIKeyConfigurable
         {
-            get
-            {
-                return _toggleRoomSceneUIKeyConfigurable;
-            }
-            private set
-            {
-                _toggleRoomSceneUIKeyConfigurable = value;
-            }
+            get;
+            private set;
         }
         #endregion
 
         #region Constructors
         public ROMOptionInterface()
         {
-            ToggleRoomSceneUIKeyConfigurable = config.Bind("ROM_ToggleRoomSceneUIKey", KeyCode.R);            
+            ToggleROMUIKeyConfigurable = config.Bind("ROM_ToggleUIKey", KeyCode.R);            
         }
         #endregion
 

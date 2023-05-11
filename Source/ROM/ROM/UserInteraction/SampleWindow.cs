@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace ROM.UserInteraction
 {
-    internal class SampleWindow : AbstractIMGUIWindow
+    internal class SampleWindow : IIMGUIWindow
     {
         #region Styles
         private static readonly GUIStyle WHITE_TEXT_STYLE;
@@ -30,7 +30,7 @@ namespace ROM.UserInteraction
         #endregion
 
         #region Methods
-        public override void Display()
+        void IIMGUIWindow.Display()
         {
             _rect = GUI.Window(id: GUIUtility.GetControlID(FocusType.Passive), clientRect: _rect, func: WindowFunction, text: "Sample Header");
         }

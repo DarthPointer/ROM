@@ -19,7 +19,7 @@ namespace ROM.ObjectDataStorage
         public string FilePath
         {
             get;
-            private set;
+            set;
         }
 
         /// <summary>

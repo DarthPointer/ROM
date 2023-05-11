@@ -19,13 +19,23 @@ namespace ROM.ObjectDataStorage
         /// The character used to designate new mount start in the merged ROMmount file.
         /// </summary>
         public const char MOUNT_START_RECORD_PREFIX = '!';
+
+        /// <summary>
+        /// The instruction used in by modification patches to append strings at the end of target files.
+        /// </summary>
+        public const string ADD_PATCH_INSTRUCTION = "[ADD]";
+
+        /// <summary>
+        /// The character used to separate lines in strings.
+        /// </summary>
+        public const string NEWLINE = "\n";
         #endregion
 
         #region Properties
         /// <summary>
-        /// The StreamingAssets/mods folder name of the mod this collection represents.
+        /// The ID string of the mod owning the mount. It must match the ID from the modinfo. If it does not, editing the mounted objects will be impossible.
         /// </summary>
-        public string ModFolderName
+        public string ModId
         {
             get;
             private set;
@@ -42,16 +52,15 @@ namespace ROM.ObjectDataStorage
         #endregion
 
         #region Constructors
-        public ModMount(string modFolderName)
+        public ModMount(string modId)
         {
-            if (modFolderName.IndexOfAny(Path.GetInvalidFileNameChars()) > -1 || modFolderName.IndexOfAny(Path.GetInvalidPathChars()) > -1)
+            if (string.IsNullOrEmpty(modId))
             {
-                throw new ArgumentException($"Mod folder name \"{modFolderName}\" passed for {typeof(ModMount)} is not a valid folder name " +
-                    $"(it contains characters illegal for paths or files)",
-                    nameof(modFolderName));
+                throw new ArgumentException($"Mod ID is null or empty",
+                    nameof(modId));
             }
 
-            ModFolderName = modFolderName;
+            ModId = modId;
             ObjectsByRooms = new();
         }
         #endregion
@@ -71,6 +80,12 @@ namespace ROM.ObjectDataStorage
             ObjectsByRooms[objectData.RoomID].Add(objectData);
         }
 
+        public string GenerateMountModifyFileString() =>
+           string.Join(NEWLINE,
+               ObjectsByRooms.Values.SelectMany(roomObjects => roomObjects).Select(obj => obj.FilePath).
+               Prepend(MOUNT_START_RECORD_PREFIX + ModId).
+               Select(str => ADD_PATCH_INSTRUCTION + str));
+
         /// <summary>
         /// Helper method to generate a sequence of <see cref="ModMount"/>'s from a sequence of strings from the ROMmount file.
         /// </summary>
@@ -85,7 +100,7 @@ namespace ROM.ObjectDataStorage
             {
                 if (string.IsNullOrEmpty(entry))
                 {
-                    logger?.LogWarning("Null or empty mount record strung encountered");
+                    logger?.LogWarning("Null or empty mount record string encountered");
                     continue;
                 }
 
@@ -97,29 +112,16 @@ namespace ROM.ObjectDataStorage
                     currentMount = null;
 
                     // Removing the mount decl prefix.
-                    string newMountName = entry.Remove(0, 1);
+                    string newMounModtId = entry.Remove(0, 1);
 
-                    // Can't have such a folder name, can't register following entries because no mount created.
-                    if (string.IsNullOrWhiteSpace(newMountName))
+                    if (string.IsNullOrEmpty(newMounModtId))
                     {
-                        logger?.LogError($"Can't create a mod mount with null or empty or whitespace-only mod folder name (encountered a mount record entry \"{entry}\"). " +
-                            $"New mount not registered, its object files will be skipped.");
+                        logger?.LogError($"Can't create a mod mount with null or empty mod ID.");
                         continue;
                     }
 
-                    int invalidCharIndex = newMountName.IndexOfAny(Path.GetInvalidPathChars());
-                    if (invalidCharIndex < 0) invalidCharIndex = newMountName.IndexOfAny(Path.GetInvalidFileNameChars());
-
-                    // Can't have such a folder name, can't register following entries because no mount created.
-                    if (invalidCharIndex > -1)
-                    {
-                        logger?.LogError($"Mount record entry \"{entry}\" contains the character {newMountName[invalidCharIndex]} which is invalid for a mount name. " +
-                            $"New mount not registered, its object files will be skipped.");
-                        continue;
-                    }
-
-                    // If we have a valid mount name
-                    currentMount = new ModMount(newMountName);
+                    // If we have a valid mount mod ID
+                    currentMount = new ModMount(newMounModtId);
                     continue;
                 }
 
@@ -127,10 +129,11 @@ namespace ROM.ObjectDataStorage
                 {
                     try
                     {
-                        string objectDataFilePath = AssetManager.ResolveFilePath(Path.Combine(currentMount.ModFolderName, entry));
+                        string objectDataFilePath = AssetManager.ResolveFilePath(entry);
 
                         if (JsonConvert.DeserializeObject<ObjectData>(File.ReadAllText(objectDataFilePath)) is ObjectData newData)
                         {
+                            newData.FilePath = entry;
                             currentMount.AddObjectData(newData);
                             continue;
                         }

@@ -42,7 +42,18 @@ namespace ROM.ObjectDataStorage
         /// <param name="mountRecordEntries">Sequence of newline-separated strings from the mount file.</param>
         public static ObjectRegistry CreateRegistryFromMountRecords(IEnumerable<string> mountRecordEntries, ManualLogSource? logger = null)
         {
-            return new ObjectRegistry(ModMount.CreateMountsFromMountRecords(mountRecordEntries, logger));
+            var result = new ObjectRegistry(ModMount.CreateMountsFromMountRecords(mountRecordEntries, logger));
+
+            logger?.LogInfo($"Object registry created. {result.ModMounts.Count} mod mount(s) loaded.");
+            if (logger != null)
+            {
+                foreach (ModMount modMount in result.ModMounts)
+                {
+                    logger.LogInfo($"Mount \"{modMount.ModId}\": {modMount.ObjectsByRooms.Values.Sum(objList => objList.Count)} objects");
+                }
+            }
+
+            return result;
         }
 
         /// <summary>

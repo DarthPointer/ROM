@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace ROM.UserInteraction
 {
-    internal abstract class AbstractIMGUIWindow
+    internal interface IIMGUIWindow
     {
         #region Methods
-        public abstract void Display();
+        void Display();
         #endregion
     }
 }
