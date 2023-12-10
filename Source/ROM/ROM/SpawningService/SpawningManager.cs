@@ -63,7 +63,7 @@ namespace ROM.SpawningService
                 {
                     if (TypeSpawners.TryGetValue(objectData.TypeID, out var typeSpawner))
                     {
-                        typeSpawner.Spawn(objectData.ObjectDataSchema, room);
+                        typeSpawner.Spawn(objectData.DataJson, room);
                     }
                     else
                     {

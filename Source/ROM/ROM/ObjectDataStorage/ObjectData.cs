@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json.Schema;
+﻿using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -58,9 +58,9 @@ namespace ROM.ObjectDataStorage
         }
 
         /// <summary>
-        /// The embedded schema that stores all the custom object data.
+        /// The embedded object that stores all the custom object data.
         /// </summary>
-        public JsonSchema ObjectDataSchema
+        public JToken DataJson
         {
             get;
             private set;
