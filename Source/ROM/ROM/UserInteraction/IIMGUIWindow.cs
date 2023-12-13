@@ -12,4 +12,15 @@ namespace ROM.UserInteraction
         void Display();
         #endregion
     }
+
+    internal static class IIMGUIWindowExtension
+    {
+        public static void RemoveFromContainer(this IIMGUIWindow window)
+        {
+            if (IMGUIWindowsContainer.WindowContainingContainers.TryGetValue(window, out var container))
+            {
+                container.RemoveWindow(window);
+            }
+        }
+    }
 }

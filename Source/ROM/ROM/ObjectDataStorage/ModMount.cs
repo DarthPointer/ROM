@@ -90,9 +90,9 @@ namespace ROM.ObjectDataStorage
         /// Helper method to generate a sequence of <see cref="ModMount"/>'s from a sequence of strings from the ROMmount file.
         /// </summary>
         /// <param name="mountRecordEntries">Sequence of newline-separated strings from the mount file.</param>
-        public static IEnumerable<ModMount> CreateMountsFromMountRecords(IEnumerable<string> mountRecordEntries, ManualLogSource? logger = null)
+        public static IEnumerable<ModMount> CreateMountsFromMountRecords(IEnumerable<string> mountRecordEntries)
         {
-            logger?.LogInfo("Generating mod mounts from mount records.");
+            ROMPlugin.Logger?.LogInfo("Generating mod mounts from mount records.");
 
             ModMount? currentMount = null;
 
@@ -100,7 +100,7 @@ namespace ROM.ObjectDataStorage
             {
                 if (string.IsNullOrEmpty(entry))
                 {
-                    logger?.LogWarning("Null or empty mount record string encountered");
+                    ROMPlugin.Logger?.LogWarning("Null or empty mount record string encountered");
                     continue;
                 }
 
@@ -116,7 +116,7 @@ namespace ROM.ObjectDataStorage
 
                     if (string.IsNullOrEmpty(newMounModtId))
                     {
-                        logger?.LogError($"Can't create a mod mount with null or empty mod ID.");
+                        ROMPlugin.Logger?.LogError($"Can't create a mod mount with null or empty mod ID.");
                         continue;
                     }
 
@@ -139,20 +139,20 @@ namespace ROM.ObjectDataStorage
                         }
 
                         // Newtonsoft.JSON returned null
-                        logger?.LogError($"Could not create an object data from {entry}, json deserialization failed.");
+                        ROMPlugin.Logger?.LogError($"Could not create an object data from {entry}, json deserialization failed.");
                         continue;
 
                     }
                     catch (Exception ex)
                     {
-                        logger?.LogError($"Exception caught while loading object data from {entry}\n" +
+                        ROMPlugin.Logger?.LogError($"Exception caught while loading object data from {entry}\n" +
                         $"{ex}");
                         continue;
                     }
                 }
 
                 // else if there is no mount to attach a new object file record.
-                logger?.LogError($"Can't register an object data for mount entry \"{entry}\" because there is no mount to attach it to. " +
+                ROMPlugin.Logger?.LogError($"Can't register an object data for mount entry \"{entry}\" because there is no mount to attach it to. " +
                     $"There was no mount declaration before or the last mount declaration was invalid.");
                 continue;
             }

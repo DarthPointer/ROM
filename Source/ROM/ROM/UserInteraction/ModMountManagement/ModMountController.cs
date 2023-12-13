@@ -15,6 +15,10 @@ namespace ROM.UserInteraction.ModMountManagement
         public const string MODIFY_FOLDER = "modify";
         #endregion
 
+        #region Fields
+        private Room? _contextRoom;
+        #endregion
+
         #region Properties
         public ModMount ModMount
         {
@@ -22,13 +26,19 @@ namespace ROM.UserInteraction.ModMountManagement
             private set;
         }
 
-        private ModManager.Mod? SourceMod
+        public Room? ContextRoom
         {
-            get;
-            set;
+            get
+            {
+                return _contextRoom;
+            }
+            set
+            {
+                _contextRoom = value;
+            }
         }
 
-        private ManualLogSource? Logger
+        private ModManager.Mod? SourceMod
         {
             get;
             set;
@@ -38,17 +48,15 @@ namespace ROM.UserInteraction.ModMountManagement
         #endregion
 
         #region Constructors
-        public ModMountController(ModMount modMount, ManualLogSource? logger = null)
+        public ModMountController(ModMount modMount)
         {
-            Logger = logger;
-
             ModMount = modMount;
 
             SourceMod = ModManager.ActiveMods.FirstOrDefault(mod => mod.id == modMount.ModId);
 
             if (SourceMod == null)
             {
-                Logger?.LogWarning($"ModMount had {nameof(modMount.ModId)} \"{modMount.ModId}\", but no active mod with such an ID was found. " +
+                ROMPlugin.Logger?.LogWarning($"ModMount had {nameof(modMount.ModId)} \"{modMount.ModId}\", but no active mod with such an ID was found. " +
                     $"Editing the objects of this mount will be impossible.");
             }
         }
@@ -78,7 +86,7 @@ namespace ROM.UserInteraction.ModMountManagement
             }
             catch (Exception ex)
             {
-                Logger?.LogError($"Exception caught while attempting to save mount {ModMount.ModId}.\n{ex}");
+                ROMPlugin.Logger?.LogError($"Exception caught while attempting to save mount {ModMount.ModId}.\n{ex}");
 
                 throw;
             }

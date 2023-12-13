@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using BepInEx.Logging;
@@ -13,16 +14,9 @@ namespace ROM.SpawningService
     /// </summary>
     internal class SpawningManager
     {
+        public static ConditionalWeakTable<UpdatableAndDeletable, ObjectData> ObjectSourceDatas { get; } = new();
+
         #region Properties
-        /// <summary>
-        /// The collection of spawners, by type ID.
-        /// </summary>
-        public Dictionary<string, ITypeSpawner> TypeSpawners
-        {
-            get;
-            private set;
-        }
-        
         /// <summary>
         /// The registry of all object datas to spawn.
         /// </summary>
@@ -31,20 +25,12 @@ namespace ROM.SpawningService
             get;
             private set;
         }
-
-        private ManualLogSource? Logger
-        {
-            get;
-            set;
-        }
         #endregion
 
         #region Constructors
-        public SpawningManager(ObjectRegistry objectRegistry, ManualLogSource? logger = null)
+        public SpawningManager(ObjectRegistry objectRegistry)
         {
-            TypeSpawners = new();
             ObjectRegistry = objectRegistry;
-            Logger = logger;
         }
         #endregion
 
@@ -55,25 +41,25 @@ namespace ROM.SpawningService
         /// <param name="room">The room to spawn objects in.</param>
         public void SpawnForRoom(Room room)
         {
-            Logger?.LogInfo($"{typeof(SpawningManager)} spawns objects for room {room.abstractRoom.name}");
+            ROMPlugin.Logger?.LogInfo($"{typeof(SpawningManager)} spawns objects for room {room.abstractRoom.name}");
 
             foreach (ObjectData objectData in GetDatasForRoom(room))
             {
                 try
                 {
-                    if (TypeSpawners.TryGetValue(objectData.TypeID, out var typeSpawner))
+                    if (TypeOperator.TypeOperators.TryGetValue(objectData.TypeID, out var typeOperator))
                     {
-                        typeSpawner.Spawn(objectData.DataJson, room);
+                        typeOperator.Spawner.Spawn(objectData.DataJson, room);
                     }
                     else
                     {
-                        Logger?.LogError(
+                        ROMPlugin.Logger?.LogError(
                             $"Could not spawn object {objectData.FullLogString} because there is no spawner registered for type {objectData.TypeID}.");
                     }
                 }
                 catch (Exception ex)
                 {
-                    Logger?.LogError($"Exception caught while spawning {objectData.FullLogString}\n" +
+                    ROMPlugin.Logger?.LogError($"Exception caught while spawning {objectData.FullLogString}\n" +
                         $"{ex}");
                 }
             }

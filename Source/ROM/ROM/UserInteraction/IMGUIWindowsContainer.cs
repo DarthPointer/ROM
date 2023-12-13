@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -14,6 +15,8 @@ namespace ROM.UserInteraction
         #endregion
 
         #region Properties
+        internal static ConditionalWeakTable<IIMGUIWindow, IMGUIWindowsContainer> WindowContainingContainers { get; } = new();
+
         public bool DisplayWindows
         {
             get;
@@ -41,6 +44,14 @@ namespace ROM.UserInteraction
                 return false;
             }
 
+            if (WindowContainingContainers.TryGetValue(window, out IMGUIWindowsContainer otherContainer))
+            {
+                ROMPlugin.Logger?.LogWarning("The window added to container already is added to another container. Removing it from the previous container.");
+
+                otherContainer.RemoveWindow(window);
+            }
+
+            WindowContainingContainers.Add(window, this);
             _windows.Add(window);
             return true;
         }
@@ -52,6 +63,7 @@ namespace ROM.UserInteraction
         /// <returns><see langword="true"/> if the window was removed successfully. <see langword="false"/> if the window was not present in the collection and the objects stayed intact.</returns>
         public bool RemoveWindow(IIMGUIWindow window)
         {
+            WindowContainingContainers.Remove(window);
             return _windows.Remove(window);
         }
 
@@ -66,7 +78,7 @@ namespace ROM.UserInteraction
         /// <summary>
         /// Unity call the container uses to display the windows it manages. Don't call this manually.
         /// </summary>
-        [Obsolete(message: "ffs don't call this manually, Unity should call it on its own when needed.", error: true)]
+        [Obsolete(message: "don't call this manually, Unity should call it on its own when needed.", error: true)]
         public void OnGUI()
         {
             if (!DisplayWindows) return;

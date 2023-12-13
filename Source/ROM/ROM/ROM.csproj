@@ -14,6 +14,15 @@
     </Reference>
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="UnityEngine.InputModule">
+      <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Rain World\RainWorld_dbg_Data\Managed\UnityEngine.InputModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Rain World\RainWorld_dbg_Data\Managed\UnityEngine.UI.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Exec Command="copy $(TargetDir)ROM.dll $(TargetDir)..\..\..\..\..\..\InstallDir\ROM\Plugins\ROM.dll /Y&#xD;&#xA;copy $(TargetDir)ROM.pdb $(TargetDir)..\..\..\..\..\..\InstallDir\ROM\Plugins\ROM.pdb /Y&#xD;&#xA;&#xD;&#xA;xcopy $(TargetDir)..\..\..\..\..\..\InstallDir\ROM\ &quot;%25rwinstall%25\RainWorld_dbg_Data\StreamingAssets\Mods\ROM\&quot; /s /y" />
   </Target>

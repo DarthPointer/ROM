@@ -40,16 +40,16 @@ namespace ROM.ObjectDataStorage
         /// Helper method to create an <see cref="ObjectRegistry"/> from a sequence of strings from the ROMmount file.
         /// </summary>
         /// <param name="mountRecordEntries">Sequence of newline-separated strings from the mount file.</param>
-        public static ObjectRegistry CreateRegistryFromMountRecords(IEnumerable<string> mountRecordEntries, ManualLogSource? logger = null)
+        public static ObjectRegistry CreateRegistryFromMountRecords(IEnumerable<string> mountRecordEntries)
         {
-            var result = new ObjectRegistry(ModMount.CreateMountsFromMountRecords(mountRecordEntries, logger));
+            var result = new ObjectRegistry(ModMount.CreateMountsFromMountRecords(mountRecordEntries));
 
-            logger?.LogInfo($"Object registry created. {result.ModMounts.Count} mod mount(s) loaded.");
-            if (logger != null)
+            ROMPlugin.Logger?.LogInfo($"Object registry created. {result.ModMounts.Count} mod mount(s) loaded.");
+            if (ROMPlugin.Logger != null)
             {
                 foreach (ModMount modMount in result.ModMounts)
                 {
-                    logger.LogInfo($"Mount \"{modMount.ModId}\": {modMount.ObjectsByRooms.Values.Sum(objList => objList.Count)} objects");
+                    ROMPlugin.Logger.LogInfo($"Mount \"{modMount.ModId}\": {modMount.ObjectsByRooms.Values.Sum(objList => objList.Count)} objects");
                 }
             }
 
@@ -61,16 +61,16 @@ namespace ROM.ObjectDataStorage
         /// </summary>
         /// <param name="fileAssetPath"></param>
         /// <returns></returns>
-        public static ObjectRegistry CreateRegistryFromMountFileAsset(string fileAssetPath, ManualLogSource? logger = null)
+        public static ObjectRegistry CreateRegistryFromMountFileAsset(string fileAssetPath)
         {
             try
             {
                 string mountFilePath = AssetManager.ResolveFilePath(fileAssetPath);
-                return CreateRegistryFromMountRecords(File.ReadAllLines(mountFilePath), logger);
+                return CreateRegistryFromMountRecords(File.ReadAllLines(mountFilePath));
             }
             catch (Exception ex)
             {
-                logger?.LogError($"Exception caught while creating an object registry from mount file.\n" +
+                ROMPlugin.Logger?.LogError($"Exception caught while creating an object registry from mount file.\n" +
                     $"{ex}");
 
                 throw;
