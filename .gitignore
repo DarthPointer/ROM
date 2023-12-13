@@ -3,3 +3,5 @@ lib/*
 source/ROM/.vs
 source/ROM/ROM/bin
 source/ROM/ROM/obj
+*.dll
+*.pdb
