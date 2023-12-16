@@ -141,7 +141,7 @@ namespace ROM.UserInteraction.ModMountManagement
         {
             GUILayout.BeginHorizontal();
 
-            GUILayout.Label($"{mountEntry.Controller.ModMount.ModId}: loaded objects for {mountEntry.Controller.ModMount.ObjectsByRooms.Count} rooms");
+            GUILayout.Label($"{mountEntry.Controller.ModMount.Mod?.id ?? "NO MOD SET"}: loaded objects for {mountEntry.Controller.ModMount.ObjectsByRooms.Count} rooms");
 
             if (mountEntry.AssignedWindow == null)
             {
@@ -218,22 +218,23 @@ namespace ROM.UserInteraction.ModMountManagement
 
         private void PopulateActiveLocalModsWithNoMountLoaded()
         {
-            HashSet<string> loadedMounts = new(ObjectRegistry.ModMounts.Select(mount => mount.ModId));
+            HashSet<ModManager.Mod?> loadedMountMods = new(ObjectRegistry.ModMounts.Select(mount => mount.Mod));
 
             ActiveLocalModsWithNoMountLoaded = ModManager.ActiveMods.
-                Where(mod => !mod.workshopMod && !loadedMounts.Contains(mod.id)).ToList();
+                Where(mod => !mod.workshopMod && !loadedMountMods.Contains(mod)).ToList();
         }
+
 
         private void CreateMountForMod(ModManager.Mod mod)
         {
-            ModMount newMount = new ModMount(mod.id);
+            ModMount newMount = new ModMount(mod);
 
-            ModMountController controller = new(newMount);
+            ModMountController newController = new(newMount);
 
             bool mountSavedSuccessfully = true;
             try
             {
-                controller.SaveMountFile();
+                newController.SaveMountFile();
             }
             catch (Exception ex)
             {
@@ -244,8 +245,8 @@ namespace ROM.UserInteraction.ModMountManagement
 
             if (mountSavedSuccessfully)
             {
-                ModMountControllers.Add(new(new(newMount)));
-                controller.ContextRoom = PreviousFrameRoom;
+                ModMountControllers.Add(new(newController));
+                newController.ContextRoom = PreviousFrameRoom;
                 ObjectRegistry.ModMounts.Add(newMount);
                 ActiveLocalModsWithNoMountLoaded.Remove(mod);
             }

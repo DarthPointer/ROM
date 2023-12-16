@@ -1,7 +1,7 @@
 ﻿using BepInEx;
 using BepInEx.Logging;
 using ROM.ObjectDataStorage;
-using ROM.SpawningService;
+using ROM.RoomObjectService;
 using ROM.UserInteraction;
 using ROM.UserInteraction.ModMountManagement;
 using System;
@@ -47,6 +47,7 @@ namespace ROM
             if (!_haveHooked)
             {
                 On.RainWorld.OnModsInit += RainWorld_OnModsInit;
+                On.Room.Loaded += Room_Loaded;
                 _haveHooked = true;
             }
             _imguiWindowsContainerGO = new GameObject("ROM IMGUI Windows Container", typeof(IMGUIWindowsContainer));
@@ -93,6 +94,12 @@ namespace ROM
             {
                 Logger?.LogError($"Failed to initialize Room Object Manager.\n{ex}");
             }
+        }
+
+        private void Room_Loaded(On.Room.orig_Loaded orig, Room self)
+        {
+            orig(self);
+            SpawningManager?.SpawnForRoom(self);
         }
         #endregion
     }

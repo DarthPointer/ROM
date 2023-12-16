@@ -49,7 +49,7 @@ namespace ROM.ObjectDataStorage
             {
                 foreach (ModMount modMount in result.ModMounts)
                 {
-                    ROMPlugin.Logger.LogInfo($"Mount \"{modMount.ModId}\": {modMount.ObjectsByRooms.Values.Sum(objList => objList.Count)} objects");
+                    ROMPlugin.Logger.LogInfo($"Mount \"{modMount.Mod?.id ?? "NO MOD SET"}\": {modMount.ObjectsByRooms.Values.Sum(objList => objList.Count)} objects");
                 }
             }
 

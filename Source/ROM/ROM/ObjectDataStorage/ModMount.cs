@@ -18,7 +18,7 @@ namespace ROM.ObjectDataStorage
         /// <summary>
         /// The character used to designate new mount start in the merged ROMmount file.
         /// </summary>
-        public const char MOUNT_START_RECORD_PREFIX = '!';
+        public const char MOUNT_START_RECORD_PREFIX = '?';
 
         /// <summary>
         /// The instruction used in by modification patches to append strings at the end of target files.
@@ -33,9 +33,9 @@ namespace ROM.ObjectDataStorage
 
         #region Properties
         /// <summary>
-        /// The ID string of the mod owning the mount. It must match the ID from the modinfo. If it does not, editing the mounted objects will be impossible.
+        /// The mod owning the mount. If it is not set, saving the mounted object changes will be impossible.
         /// </summary>
-        public string ModId
+        public ModManager.Mod Mod
         {
             get;
             private set;
@@ -52,15 +52,9 @@ namespace ROM.ObjectDataStorage
         #endregion
 
         #region Constructors
-        public ModMount(string modId)
+        public ModMount(ModManager.Mod mod)
         {
-            if (string.IsNullOrEmpty(modId))
-            {
-                throw new ArgumentException($"Mod ID is null or empty",
-                    nameof(modId));
-            }
-
-            ModId = modId;
+            Mod = mod;
             ObjectsByRooms = new();
         }
         #endregion
@@ -72,19 +66,29 @@ namespace ROM.ObjectDataStorage
         /// <param name="objectData"></param>
         public void AddObjectData(ObjectData objectData)
         {
-            if (!ObjectsByRooms.ContainsKey(objectData.RoomID))
+            if (!ObjectsByRooms.ContainsKey(objectData.RoomId))
             {
-                ObjectsByRooms.Add(objectData.RoomID, new());
+                ObjectsByRooms.Add(objectData.RoomId, new());
             }
 
-            ObjectsByRooms[objectData.RoomID].Add(objectData);
+            ObjectsByRooms[objectData.RoomId].Add(objectData);
         }
 
-        public string GenerateMountModifyFileString() =>
-           string.Join(NEWLINE,
-               ObjectsByRooms.Values.SelectMany(roomObjects => roomObjects).Select(obj => obj.FilePath).
-               Prepend(MOUNT_START_RECORD_PREFIX + ModId).
-               Select(str => ADD_PATCH_INSTRUCTION + str));
+        public string GenerateMountModifyFileString()
+        {
+            if (Mod == null)
+            {
+                string noModErrorMessage = $"Can not generate ";
+
+                ROMPlugin.Logger?.LogError(noModErrorMessage);
+                throw new InvalidOperationException(noModErrorMessage);
+            }
+
+            return string.Join(NEWLINE,
+                ObjectsByRooms.Values.SelectMany(roomObjects => roomObjects).Select(obj => obj.FilePath).
+                Prepend(MOUNT_START_RECORD_PREFIX + Mod.id).
+                Select(str => ADD_PATCH_INSTRUCTION + str));
+        }
 
         /// <summary>
         /// Helper method to generate a sequence of <see cref="ModMount"/>'s from a sequence of strings from the ROMmount file.
@@ -112,16 +116,25 @@ namespace ROM.ObjectDataStorage
                     currentMount = null;
 
                     // Removing the mount decl prefix.
-                    string newMounModtId = entry.Remove(0, 1);
+                    string newMountModtId = entry.Remove(0, 1);
 
-                    if (string.IsNullOrEmpty(newMounModtId))
+                    if (string.IsNullOrEmpty(newMountModtId))
                     {
                         ROMPlugin.Logger?.LogError($"Can't create a mod mount with null or empty mod ID.");
                         continue;
                     }
 
                     // If we have a valid mount mod ID
-                    currentMount = new ModMount(newMounModtId);
+                    ModManager.Mod? newMountMod = GetActiveModById(newMountModtId);
+
+                    if (newMountMod == null)
+                    {
+                        ROMPlugin.Logger?.LogError($"No active mod found for a mount by id {newMountModtId}. " +
+                            $"Objects of this mount will not be loaded.");
+                        continue;
+                    }
+
+                    currentMount = new ModMount(newMountMod);
                     continue;
                 }
 
@@ -129,7 +142,7 @@ namespace ROM.ObjectDataStorage
                 {
                     try
                     {
-                        string objectDataFilePath = AssetManager.ResolveFilePath(entry);
+                        string objectDataFilePath = AssetManager.ResolveFilePath(Path.Combine(currentMount.Mod.id, entry));
 
                         if (JsonConvert.DeserializeObject<ObjectData>(File.ReadAllText(objectDataFilePath)) is ObjectData newData)
                         {
@@ -159,6 +172,11 @@ namespace ROM.ObjectDataStorage
 
             // If we already have a mount-in-progress created by the end of the records, we yield it and finish the mount loading.
             if (currentMount != null) yield return currentMount;
+        }
+
+        private static ModManager.Mod? GetActiveModById(string id)
+        {
+            return ModManager.ActiveMods.FirstOrDefault(mod => mod.id == id);
         }
         #endregion
     }

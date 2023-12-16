@@ -33,7 +33,7 @@ namespace ROM.IMGUIUtilities
                 // If there was no window dragged
                 if (CurrentlyResizedWindow == null)
                 {
-                    InitialDragPos = GetMouseUICoordinates();
+                    InitialDragPos = CommonIMGUIUtils.GetScreenMouseUICoordinates();
                     InitialSize = currentSize;
                     CurrentlyResizedWindow = windowToResize;
 
@@ -42,7 +42,7 @@ namespace ROM.IMGUIUtilities
                 }
 
                 // Here it is guaranteed that CurrentlyResizedWindow is the windowToResize
-                return InitialSize + GetMouseUICoordinates() - InitialDragPos;
+                return InitialSize + CommonIMGUIUtils.GetScreenMouseUICoordinates() - InitialDragPos;
             }
 
 
@@ -59,7 +59,7 @@ namespace ROM.IMGUIUtilities
                         //Input.ResetInputAxes();
 
                         // We continue the drag
-                        return InitialSize + GetMouseUICoordinates() - InitialDragPos;
+                        return InitialSize + CommonIMGUIUtils.GetScreenMouseUICoordinates() - InitialDragPos;
                     }
 
                     // If it is not, we stop the drag
@@ -68,13 +68,6 @@ namespace ROM.IMGUIUtilities
 
                 return currentSize;
             }
-        }
-
-        private static Vector2 GetMouseUICoordinates()
-        {
-            Vector3 unityMousPos = Input.mousePosition;
-
-            return new(unityMousPos.x, Screen.height - unityMousPos.y);
         }
     }
 }

@@ -7,14 +7,11 @@ using System.Threading.Tasks;
 using BepInEx.Logging;
 using ROM.ObjectDataStorage;
 
-namespace ROM.SpawningService
+namespace ROM.RoomObjectService
 {
-    /// <summary>
-    /// The object to aggregate object spawners by type and call them for to spawn room objects.
-    /// </summary>
     internal class SpawningManager
     {
-        public static ConditionalWeakTable<UpdatableAndDeletable, ObjectData> ObjectSourceDatas { get; } = new();
+        internal static Dictionary<ObjectData, WeakReference<UpdatableAndDeletable>> SpawnedObjectsTracker { get; } = [];
 
         #region Properties
         /// <summary>
@@ -47,14 +44,19 @@ namespace ROM.SpawningService
             {
                 try
                 {
-                    if (TypeOperator.TypeOperators.TryGetValue(objectData.TypeID, out var typeOperator))
+                    if (TypeOperator.TypeOperators.TryGetValue(objectData.TypeId, out var typeOperator))
                     {
-                        typeOperator.Spawner.Spawn(objectData.DataJson, room);
+                        UpdatableAndDeletable newUAD = typeOperator.Load(objectData.DataJson, room);
+
+                        (newUAD as ICallAfterPropertiesSet)?.OnAfterPropertiesSet();
+
+                        SpawnedObjectsTracker[objectData] = new(newUAD);
+                        room.AddObject(newUAD);
                     }
                     else
                     {
                         ROMPlugin.Logger?.LogError(
-                            $"Could not spawn object {objectData.FullLogString} because there is no spawner registered for type {objectData.TypeID}.");
+                            $"Could not load object {objectData.FullLogString} because there is no loader registered for type {objectData.TypeId}.");
                     }
                 }
                 catch (Exception ex)

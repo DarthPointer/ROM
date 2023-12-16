@@ -1,5 +1,7 @@
 ﻿using BepInEx.Logging;
+using Newtonsoft.Json.Linq;
 using ROM.ObjectDataStorage;
+using ROM.RoomObjectService;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -38,11 +40,7 @@ namespace ROM.UserInteraction.ModMountManagement
             }
         }
 
-        private ModManager.Mod? SourceMod
-        {
-            get;
-            set;
-        }
+        private ModManager.Mod? SourceMod => ModMount.Mod;
 
         public bool CanWrite => SourceMod?.workshopMod == false;
         #endregion
@@ -52,12 +50,10 @@ namespace ROM.UserInteraction.ModMountManagement
         {
             ModMount = modMount;
 
-            SourceMod = ModManager.ActiveMods.FirstOrDefault(mod => mod.id == modMount.ModId);
-
             if (SourceMod == null)
             {
-                ROMPlugin.Logger?.LogWarning($"ModMount had {nameof(modMount.ModId)} \"{modMount.ModId}\", but no active mod with such an ID was found. " +
-                    $"Editing the objects of this mount will be impossible.");
+                ROMPlugin.Logger?.LogWarning($"ModMount has no mod assigned. " +
+                    $"Saving the changes of objects of this mount will be impossible.");
             }
         }
         #endregion
@@ -67,13 +63,13 @@ namespace ROM.UserInteraction.ModMountManagement
         {
             if (SourceMod == null)
             {
-                throw new InvalidOperationException($"{nameof(SaveMountFile)} is called for the controller of the \"{ModMount.ModId}\" mod mount, but its mod was null. " +
+                throw new InvalidOperationException($"{nameof(SaveMountFile)} is called for a controller with no mod assigned. " +
                     $"This likely is caused by Mod IDs specified in the ROM Mount and modinfo being different.");
             }
 
             if (SourceMod.workshopMod == true)
             {
-                throw new InvalidOperationException($"{nameof(SaveMountFile)} is called for the controller of the \"{ModMount.ModId}\" mod mount, " +
+                throw new InvalidOperationException($"{nameof(SaveMountFile)} is called for the controller of the \"{SourceMod.id}\" mod mount, " +
                     $"but its mod is a downloaded workshop mod. Saving mounts and objects of workshop mods is not allowed.");
             }
 
@@ -86,7 +82,7 @@ namespace ROM.UserInteraction.ModMountManagement
             }
             catch (Exception ex)
             {
-                ROMPlugin.Logger?.LogError($"Exception caught while attempting to save mount {ModMount.ModId}.\n{ex}");
+                ROMPlugin.Logger?.LogError($"Exception caught while attempting to save mount {SourceMod.id}.\n{ex}");
 
                 throw;
             }
