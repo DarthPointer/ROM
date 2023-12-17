@@ -132,7 +132,8 @@ namespace ROM.RoomObjectService
             }
         }
 
-        public static Func<object, JToken> GetTrivialVersionedSaveCall(string versionId)
+        public static Func<TOBJ, JToken> GetTrivialVersionedSaveCall<TOBJ>(string versionId)
+            where TOBJ : notnull
         {
             return obj => GetTrivialVersionedSave(obj, versionId);
         }
