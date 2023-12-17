@@ -3,7 +3,6 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -117,6 +116,10 @@ namespace ROM.RoomObjectService
         {
             try
             {
+                if (obj is UpdatableAndDeletable uad)
+                {
+                    return JToken.FromObject(uad, UADContractResolver.SeiralizerInstance);
+                }
                 return JToken.FromObject(obj);
             }
             catch (JsonSerializationException ex)
@@ -129,20 +132,18 @@ namespace ROM.RoomObjectService
             }
         }
 
-        public static JToken TrivialSave(UpdatableAndDeletable datableAndDeletable)
+        public static Func<object, JToken> GetTrivialVersionedSaveCall(string versionId)
         {
-            try
-            {
-                return JToken.FromObject(datableAndDeletable, UADContractResolver.SeiralizerInstance);
-            }
-            catch (JsonSerializationException ex)
-            {
-                string serializationExceptionError = $"A serialization exception has occurred while serializing a {datableAndDeletable.GetType()}. " +
-                    $"Make sure you have provided it and its members with proper serialization attributes.";
+            return obj => GetTrivialVersionedSave(obj, versionId);
+        }
 
-                ROMPlugin.Logger?.LogError(serializationExceptionError + '\n' + ex);
-                throw new Exception(serializationExceptionError, ex);
-            }
+        private static JToken GetTrivialVersionedSave(object obj, string versionId)
+        {
+            return JToken.FromObject(new VersionedJson
+            {
+                VersionId = versionId,
+                Data = TrivialSave(obj)
+            });
         }
 
         private class UADContractResolver : DefaultContractResolver
