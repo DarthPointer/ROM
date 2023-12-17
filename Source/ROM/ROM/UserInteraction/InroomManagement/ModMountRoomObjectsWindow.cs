@@ -297,6 +297,14 @@ namespace ROM.UserInteraction.InroomManagement
             GUILayout.Label("Object file path:");
             NewObjectFilePath = GUILayout.TextField(NewObjectFilePath);
 
+            if (NewObjectTypeOperator != null && ModMountController?.ContextRoom != null)
+            {
+                if (GUILayout.Button("Generate object file path"))
+                {
+                    NewObjectFilePath = Path.Combine(ModMountController.ContextRoom.abstractRoom.name, NewObjectTypeOperator.TypeId);
+                }
+            }
+
             if (!NewObjectFilePathIsValid)
             {
                 GUILayout.Label(NewObjectFilePathErrorString);
