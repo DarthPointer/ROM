@@ -88,7 +88,7 @@ namespace ROM.UserInteraction.ModMountManagement
                 throw new Exception(fileExistsErrorString);
             }
 
-            UpdatableAndDeletable newObject;
+            object newObject;
             try
             {
                 newObject = typeOperator.CreateNew(ContextRoom);
@@ -138,8 +138,19 @@ namespace ROM.UserInteraction.ModMountManagement
             }
 
             SpawningManager.SpawnedObjectsTracker.Remove(newObjectData);
-            SpawningManager.SpawnedObjectsTracker.Add(newObjectData, new WeakReference<UpdatableAndDeletable>(newObject));
-            ContextRoom.AddObject(newObject);
+            SpawningManager.SpawnedObjectsTracker.Add(newObjectData, new WeakReference<object>(newObject));
+            try
+            {
+                typeOperator.AddToRoom(newObject, ContextRoom);
+            }
+            catch (Exception ex)
+            {
+                string addingToRoomErrorString = $"An exception occurred while adding the new object to the room. {ex.GetType()}.";
+
+                ROMPlugin.Logger?.LogError(addingToRoomErrorString);
+                throw new Exception(addingToRoomErrorString, ex);
+            }
+
             ModMount.AddObjectData(newObjectData);
 
             try
@@ -148,8 +159,7 @@ namespace ROM.UserInteraction.ModMountManagement
             }
             catch (Exception ex)
             {
-                string mountSavingErrorString = $"An exception occurred while saving the updated mount file. {ex.GetType()}. " +
-                    $"See logs for more info.";
+                string mountSavingErrorString = $"An exception occurred while saving the updated mount file. {ex.GetType()}.";
 
                 ROMPlugin.Logger?.LogError(mountSavingErrorString);
                 throw new Exception(mountSavingErrorString, ex);
@@ -160,11 +170,28 @@ namespace ROM.UserInteraction.ModMountManagement
         {
             AssertContextRoomNotNull();
 
-            if (SpawningManager.SpawnedObjectsTracker.TryGetValue(objectData, out var uadRef) &&
-                    uadRef.TryGetTarget(out UpdatableAndDeletable uad))
+            if (SpawningManager.SpawnedObjectsTracker.TryGetValue(objectData, out var objRef) &&
+                    objRef.TryGetTarget(out object obj))
             {
-                ContextRoom.RemoveObject(uad);
-                uad.Destroy();
+                if (!TypeOperator.TypeOperators.TryGetValue(objectData.TypeId, out ITypeOperator typeOperator))
+                {
+                    string typeNotFoundErrorString = $"Tried to remove the object {objectData.FullLogString} but its type is not registered.";
+
+                    ROMPlugin.Logger?.LogError(typeNotFoundErrorString);
+                    throw new Exception(typeNotFoundErrorString);
+                }
+
+                try
+                {
+                    typeOperator.RemoveFromRoom(obj, ContextRoom);
+                }
+                catch (Exception ex)
+                {
+                    string objectRemovalErrorString = $"An exception occurred while removing the object from the room. {ex.GetType()}.";
+
+                    ROMPlugin.Logger?.LogError(objectRemovalErrorString);
+                    throw new Exception(objectRemovalErrorString, ex);
+                }
             }
 
             try

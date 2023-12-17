@@ -12,29 +12,29 @@ namespace ROM.RoomObjectService
 {
     public static class TypeOperatorUtils
     {
-        internal class VersionedLoader<TUAD>
-            where TUAD : UpdatableAndDeletable
+        internal class VersionedLoader<TOBJ>
+            where TOBJ : notnull
         {
-            public Func<JToken, Room, TUAD>? DefaultLoader { get; }
-            public Dictionary<string, Func<JToken, Room, TUAD>> SupportedVersionLoaders { get; }
+            public Func<JToken, Room, TOBJ>? DefaultLoader { get; }
+            public Dictionary<string, Func<JToken, Room, TOBJ>> SupportedVersionLoaders { get; }
 
-            public VersionedLoader(Func<JToken, Room, TUAD>? defaultLoader, IEnumerable<LoadVersion<TUAD>> supportedVersions)
+            public VersionedLoader(Func<JToken, Room, TOBJ>? defaultLoader, IEnumerable<LoadVersion<TOBJ>> supportedVersions)
             {
                 DefaultLoader = defaultLoader;
 
                 SupportedVersionLoaders = [];
-                foreach (LoadVersion<TUAD> version in supportedVersions)
+                foreach (LoadVersion<TOBJ> version in supportedVersions)
                 {
                     if (SupportedVersionLoaders.ContainsKey(version.VersionId))
                     {
-                        ROMPlugin.Logger?.LogWarning($"Duplicate supported version {version.VersionId} supplied (UAD type {typeof(TUAD)}). Overwriting.");
+                        ROMPlugin.Logger?.LogWarning($"Duplicate supported version {version.VersionId} supplied (type {typeof(TOBJ)}). Overwriting.");
                     }
 
                     SupportedVersionLoaders[version.VersionId] = version.LoadCall;
                 }
             }
 
-            public TUAD Load(JToken objectData, Room room)
+            public TOBJ Load(JToken objectData, Room room)
             {
                 if (objectData.ToObject<VersionedJson>() is VersionedJson versionedJson)
                 {
@@ -48,66 +48,96 @@ namespace ROM.RoomObjectService
                         return DefaultLoader(versionedJson.Data, room);
                     }
 
-                    string versionNotSupportedError = $"The versioned loader provided for {typeof(TUAD)} can not process the received {nameof(objectData)} " +
+                    string versionNotSupportedError = $"The versioned loader provided for {typeof(TOBJ)} can not process the received {nameof(objectData)} " +
                         $"because its version {versionedJson.VersionId} is not supported and no default loader is specified.";
 
                     ROMPlugin.Logger?.LogError(versionNotSupportedError);
                     throw new ArgumentException(versionNotSupportedError, nameof(objectData));
                 }
 
-                string notAVersionedJsonError = $"Json data received for the creation of {typeof(TUAD)} was not parsable as {typeof(VersionedJson)}.";
+                string notAVersionedJsonError = $"Json data received for the creation of {typeof(TOBJ)} was not parsable as {typeof(VersionedJson)}.";
 
                 ROMPlugin.Logger?.LogError(notAVersionedJsonError);
                 throw new ArgumentException(notAVersionedJsonError, nameof(objectData));
             }
         }
 
-        public class LoadVersion<TUAD>(string versionId, Func<JToken, Room, TUAD> loadCall)
-            where TUAD : UpdatableAndDeletable
+        public class LoadVersion<TOBJ>(string versionId, Func<JToken, Room, TOBJ> loadCall)
+            where TOBJ : notnull
         {
             public string VersionId { get; } = versionId;
-            public Func<JToken, Room, TUAD> LoadCall = loadCall;
+            public Func<JToken, Room, TOBJ> LoadCall = loadCall;
         }
 
-        public static Func<JToken, Room, TUAD> GetVersionedLoadCall<TUAD>
-            (Func<JToken, Room, TUAD>? defaultLoad = null, IEnumerable<LoadVersion<TUAD>> supportedVersions = null!)
-            where TUAD : UpdatableAndDeletable
+        public static Func<JToken, Room, TOBJ> GetVersionedLoadCall<TOBJ>
+            (Func<JToken, Room, TOBJ>? defaultLoad = null, IEnumerable<LoadVersion<TOBJ>> supportedVersions = null!)
+            where TOBJ : notnull
         {
-             return new VersionedLoader<TUAD>(defaultLoad, supportedVersions ?? Enumerable.Empty<LoadVersion<TUAD>>()).Load;
+             return new VersionedLoader<TOBJ>(defaultLoad, supportedVersions ?? Enumerable.Empty<LoadVersion<TOBJ>>()).Load;
         }
 
-        public static Func<JToken, Room, TUAD> GetVersionedLoadCall<TUAD>
-            (Func<JToken, Room, TUAD>? defaultLoad = null, params LoadVersion<TUAD>[] supportedVersions)
-            where TUAD : UpdatableAndDeletable
+        public static Func<JToken, Room, TOBJ> GetVersionedLoadCall<TOBJ>
+            (Func<JToken, Room, TOBJ>? defaultLoad = null, params LoadVersion<TOBJ>[] supportedVersions)
+            where TOBJ : notnull
         {
-            return GetVersionedLoadCall(defaultLoad, supportedVersions as IEnumerable<LoadVersion<TUAD>>);
+            return GetVersionedLoadCall(defaultLoad, supportedVersions as IEnumerable<LoadVersion<TOBJ>>);
         }
 
-        public static TUAD TrivialLoad<TUAD>(JToken data, Room room)
-            where TUAD : UpdatableAndDeletable, new()
+        public static TOBJ TrivialLoad<TOBJ>(JToken data, Room room)
+            where TOBJ : notnull, new()
         {
-            if (data.ToObject<TUAD>() is TUAD tuad)
+            if (data.ToObject<TOBJ>() is TOBJ obj)
             {
-                tuad.room = room;
-                return tuad;
+                if (obj is UpdatableAndDeletable uad)
+                {
+                    uad.room = room;
+                }
+
+                return obj;
             }
 
-            string notParsedAsObjectError = $"Failed to parse the received {nameof(data)} as {nameof(TUAD)}.";
+            string notParsedAsObjectError = $"Failed to parse the received {nameof(data)} as {nameof(TOBJ)}.";
 
             ROMPlugin.Logger?.LogError(notParsedAsObjectError);
             throw new ArgumentException(notParsedAsObjectError, nameof(data));
         }
 
-        public static JToken TrivialSave<TUAD>(TUAD obj)
-            where TUAD : UpdatableAndDeletable
+        public static void AddUADToRoom(UpdatableAndDeletable uad, Room room)
+        {
+            room.AddObject(uad);
+        }
+
+        public static void RemoveUADFromRoom(UpdatableAndDeletable uad, Room room)
+        {
+            room.RemoveObject(uad);
+            uad.Destroy();
+        }
+
+        public static JToken TrivialSave(object obj)
         {
             try
             {
-                return JToken.FromObject(obj, UADContractResolver.SeiralizerInstance);
+                return JToken.FromObject(obj);
             }
             catch (JsonSerializationException ex)
             {
-                string serializationExceptionError = $"A serialization exception has occurred while serializing a {typeof(TUAD)}. " +
+                string serializationExceptionError = $"A serialization exception has occurred while serializing a {obj.GetType()}. " +
+                    $"Make sure you have provided it and its members with proper serialization attributes.";
+
+                ROMPlugin.Logger?.LogError(serializationExceptionError + '\n' + ex);
+                throw new Exception(serializationExceptionError, ex);
+            }
+        }
+
+        public static JToken TrivialSave(UpdatableAndDeletable datableAndDeletable)
+        {
+            try
+            {
+                return JToken.FromObject(datableAndDeletable, UADContractResolver.SeiralizerInstance);
+            }
+            catch (JsonSerializationException ex)
+            {
+                string serializationExceptionError = $"A serialization exception has occurred while serializing a {datableAndDeletable.GetType()}. " +
                     $"Make sure you have provided it and its members with proper serialization attributes.";
 
                 ROMPlugin.Logger?.LogError(serializationExceptionError + '\n' + ex);

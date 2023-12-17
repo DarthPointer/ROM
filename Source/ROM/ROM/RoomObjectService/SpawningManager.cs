@@ -11,7 +11,7 @@ namespace ROM.RoomObjectService
 {
     internal class SpawningManager
     {
-        internal static Dictionary<ObjectData, WeakReference<UpdatableAndDeletable>> SpawnedObjectsTracker { get; } = [];
+        internal static Dictionary<ObjectData, WeakReference<object>> SpawnedObjectsTracker { get; } = [];
 
         #region Properties
         /// <summary>
@@ -46,17 +46,16 @@ namespace ROM.RoomObjectService
                 {
                     if (TypeOperator.TypeOperators.TryGetValue(objectData.TypeId, out var typeOperator))
                     {
-                        UpdatableAndDeletable newUAD = typeOperator.Load(objectData.DataJson, room);
+                        object newObj = typeOperator.Load(objectData.DataJson, room);
+                        (newObj as ICallAfterPropertiesSet)?.OnAfterPropertiesSet();
 
-                        (newUAD as ICallAfterPropertiesSet)?.OnAfterPropertiesSet();
-
-                        SpawnedObjectsTracker[objectData] = new(newUAD);
-                        room.AddObject(newUAD);
+                        SpawnedObjectsTracker[objectData] = new(newObj);
+                        typeOperator.AddToRoom(newObj, room);
                     }
                     else
                     {
                         ROMPlugin.Logger?.LogError(
-                            $"Could not load object {objectData.FullLogString} because there is no loader registered for type {objectData.TypeId}.");
+                            $"Could not load object {objectData.FullLogString} because type {objectData.TypeId} is not registered.");
                     }
                 }
                 catch (Exception ex)
