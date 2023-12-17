@@ -13,11 +13,9 @@ using UnityEngine;
 
 namespace ROM.UserInteraction.InroomManagement
 {
-    internal class ModMountRoomObjectsWindow : IIMGUIWindow
+    internal class ModMountRoomObjectsWindow : ResizeableAndDraggableIMGUIWindow
     {
         #region Fields
-        private Rect _windowRect = new Rect(100, 100, 400, 600);
-        private Vector2 _windowSize;
         private Vector2 _scrollState = Vector2.zero;
         private Vector2 _newObjectTypeScrollState = Vector2.zero;
 
@@ -42,22 +40,9 @@ namespace ROM.UserInteraction.InroomManagement
         }
 
         #region Properties
+        protected override string HeaderText => $"{ModMountController?.ContextRoom?.abstractRoom.name ?? "NO ROOM"} objects of {ModMountController?.ModMount.Mod?.id ?? "NO MOD SET"} mount.";
+
         private ModMountController? ModMountController { get; set; }
-
-        private List<ObjectData>? CurrentRoomObjects
-        {
-            get
-            {
-                if (ModMountController?.ContextRoom == null) { return null; }
-
-                if (ModMountController.ModMount.ObjectsByRooms.TryGetValue(ModMountController.ContextRoom.abstractRoom.name, out List<ObjectData> result))
-                {
-                    return result;
-                }
-
-                return null;
-            }
-        }
 
         private string NewObjectFilePath
         {
@@ -136,7 +121,7 @@ namespace ROM.UserInteraction.InroomManagement
         #region Constructors
         public ModMountRoomObjectsWindow(ModMountController modMountController)
         {
-            _windowSize = _windowRect.size;
+            _windowRect = new Rect(100, 100, 400, 600);
 
             ModMountController = modMountController;
 
@@ -145,15 +130,7 @@ namespace ROM.UserInteraction.InroomManagement
         #endregion
 
         #region Methods
-        void IIMGUIWindow.Display()
-        {
-            _windowRect.size = _windowSize;
-
-            _windowRect = GUILayout.Window(GetHashCode(), _windowRect, ModMountWindow,
-                $"{ModMountController?.ContextRoom?.abstractRoom.name ?? "NO ROOM"} objects of {ModMountController?.ModMount.Mod?.id ?? "NO MOD SET"} mount.");
-        }
-
-        private void ModMountWindow(int id)
+        protected override void WindowFunction(int id)
         {
             GUILayout.BeginVertical();
 
@@ -169,10 +146,7 @@ namespace ROM.UserInteraction.InroomManagement
 
             GUILayout.EndScrollView();
 
-            _windowSize = WindowResizer.GetNewSizeByDragButton(this, _windowSize);
             GUILayout.EndVertical();
-
-            GUI.DragWindow();
         }
 
         private void ListExistingRoomObjects()
@@ -183,13 +157,13 @@ namespace ROM.UserInteraction.InroomManagement
                 return;
             }
 
-            if (CurrentRoomObjects == null || CurrentRoomObjects.Count == 0)
+            if (ModMountController.CurrentRoomObjectsList == null || ModMountController.CurrentRoomObjectsList.Count == 0)
             {
                 GUILayout.Label($"{ModMountController.ContextRoom.abstractRoom.name} has no objects from {ModMountController.ModMount.Mod.id} yet");
                 return;
             }
 
-            foreach (ObjectData obj in CurrentRoomObjects)
+            foreach (ObjectData obj in ModMountController.CurrentRoomObjectsList)
             {
                 ListExistingRoomObject(obj);
             }

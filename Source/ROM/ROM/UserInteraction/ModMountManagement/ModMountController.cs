@@ -37,9 +37,16 @@ namespace ROM.UserInteraction.ModMountManagement
             }
             set
             {
-                _contextRoom = value;
+                if (_contextRoom != value)
+                {
+                    _contextRoom = value;
+
+                    UpdateCurrentRoomObjects();
+                }
             }
         }
+
+        public IReadOnlyList<ObjectData>? CurrentRoomObjectsList { get; private set; }
 
         public bool CanWrite => ModMount.Mod.workshopMod == false;
         #endregion
@@ -196,7 +203,6 @@ namespace ROM.UserInteraction.ModMountManagement
 
             try
             {
-                SaveMountFile();
                 File.Delete(objectData.GetPrimarySourceFilePath());
             }
             catch (Exception ex)
@@ -210,6 +216,23 @@ namespace ROM.UserInteraction.ModMountManagement
             SpawningManager.SpawnedObjectsTracker.Remove(objectData);
             ModMount.ObjectsByRooms[ContextRoom.abstractRoom.name].Remove(objectData);
             SaveMountFile();
+        }
+
+        private void UpdateCurrentRoomObjects()
+        {
+            if (ContextRoom == null)
+            {
+                CurrentRoomObjectsList = null;
+                return;
+            }
+
+            if (ModMount.ObjectsByRooms.TryGetValue(ContextRoom.abstractRoom.name, out List<ObjectData> result))
+            {
+                CurrentRoomObjectsList = result;
+                return;
+            }
+
+            CurrentRoomObjectsList = null;
         }
 
         [MemberNotNull(nameof(ContextRoom))]
