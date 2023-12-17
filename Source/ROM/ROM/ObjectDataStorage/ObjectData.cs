@@ -104,7 +104,7 @@ namespace ROM.ObjectDataStorage
         {
             if (Mod == null)
             {
-                string noModErrorMessage = $"Can not get {FullLogString} because its mod is not set.";
+                string noModErrorMessage = $"Can not get file path for {FullLogString} because its mod is not set.";
 
                 ROMPlugin.Logger?.LogError(noModErrorMessage);
                 throw new InvalidOperationException(noModErrorMessage);

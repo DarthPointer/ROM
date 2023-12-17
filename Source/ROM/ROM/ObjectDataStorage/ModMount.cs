@@ -147,6 +147,7 @@ namespace ROM.ObjectDataStorage
                         if (JsonConvert.DeserializeObject<ObjectData>(File.ReadAllText(objectDataFilePath)) is ObjectData newData)
                         {
                             newData.FilePath = entry;
+                            newData.Mod = currentMount.Mod;
                             currentMount.AddObjectData(newData);
                             continue;
                         }

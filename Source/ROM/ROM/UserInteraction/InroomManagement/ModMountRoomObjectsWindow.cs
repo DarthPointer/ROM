@@ -94,7 +94,7 @@ namespace ROM.UserInteraction.InroomManagement
                     _newObjectTypeFilterText = value;
                     NewObjectTypeOperatorOptionsController.SearchFilter = _newObjectTypeFilterText;
 
-                    NewObjectTypeOperator = null;
+                    NewObjectTypeOperator = GetTypeOperatorByFilterText();
                 }
             }
         }
@@ -129,6 +129,8 @@ namespace ROM.UserInteraction.InroomManagement
         /// Delete the <see cref="ConfirmDeletingObject"/>?
         /// </summary>
         private bool DeleteObjectConfirmed { get; set; } = false;
+
+        private string? ExistingObjectListError { get; set; } = null;
         #endregion
 
         #region Constructors
@@ -196,6 +198,11 @@ namespace ROM.UserInteraction.InroomManagement
             {
                 DeleteObject();
             }
+
+            if (ExistingObjectListError != null)
+            {
+                GUILayout.Label(ExistingObjectListError);
+            }
         }
 
         private void ListExistingRoomObject(ObjectData objectData)
@@ -242,30 +249,21 @@ namespace ROM.UserInteraction.InroomManagement
             if (ConfirmDeletingObject == null || DeleteObjectConfirmed == false || ModMountController?.ContextRoom == null)
                 return;
 
-            ObjectData objectData = ConfirmDeletingObject;
-
-            if (SpawningManager.SpawnedObjectsTracker.TryGetValue(ConfirmDeletingObject, out var uadRef) &&
-                    uadRef.TryGetTarget(out UpdatableAndDeletable uad))
-            {
-                ModMountController.ContextRoom.RemoveObject(uad);
-                uad.Destroy();
-            }
-
-            SpawningManager.SpawnedObjectsTracker.Remove(objectData);
-
-            ModMountController.ModMount.ObjectsByRooms[ModMountController.ContextRoom.abstractRoom.name].Remove(objectData);
-            ConfirmDeletingObject = null;
-            DeleteObjectConfirmed = false;
+            ExistingObjectListError = null;
 
             try
             {
-                ModMountController.SaveMountFile();
-                File.Delete(objectData.GetPrimarySourceFilePath());
+                ModMountController.DeleteObject(ConfirmDeletingObject);
             }
             catch (Exception ex)
             {
-                ROMPlugin.Logger?.LogError($"Exception occurred while deleting the object {objectData.FilePath} from the files.\n{ex}");
+                DeleteObjectConfirmed = false;
+                ExistingObjectListError = ex.Message;
+                return;
             }
+
+            ConfirmDeletingObject = null;
+            DeleteObjectConfirmed = false;
         }
 
         private void NewObjectCreation()
@@ -376,10 +374,11 @@ namespace ROM.UserInteraction.InroomManagement
 
         private void AddObjectButtonClick()
         {
-            ITypeOperator? type = GetHandlerBySelectionOrName();
-            if (type == null)
+            NewObjectCreationErrorString = null;
+
+            if (NewObjectTypeOperator == null)
             {
-                NewObjectCreationErrorString = $"No object type is selected, no type with id {NewObjectTypeFilterText} was found.";
+                NewObjectCreationErrorString = $"No object type is selected.";
                 return;
             }
 
@@ -396,85 +395,18 @@ namespace ROM.UserInteraction.InroomManagement
                 return;
             }
 
-            string targetFilePath = ObjectData.GetPrimarySourceFilePath(ModMountController.ModMount.Mod, NewObjectFilePathWithExtension);
-            if (File.Exists(targetFilePath))
-            {
-                NewObjectCreationErrorString = $"File {targetFilePath} already exists.";
-                return;
-            }
-
-            UpdatableAndDeletable newObject;
             try
             {
-                 newObject = type.CreateNew(ModMountController.ContextRoom);
-                (newObject as ICallAfterPropertiesSet)?.OnAfterPropertiesSet();
+                ModMountController.AddObject(NewObjectFilePathWithExtension, NewObjectTypeOperator);
             }
             catch (Exception ex)
             {
-                ROMPlugin.Logger?.LogError($"An exception caught while creating a new instance for typeId {type.TypeId}.\n{ex}");
-
-                return;
-            }
-
-            JToken dataJson;
-            try
-            {
-                dataJson = type.Save(newObject);
-            }
-            catch (Exception ex)
-            {
-                ROMPlugin.Logger?.LogError($"An exception caught while saving the data from the new instance for typeId {type.TypeId}.\n{ex}");
-
-                return;
-            }
-
-            ObjectData newObjectData = new()
-            {
-                TypeId = type.TypeId,
-                RoomId = ModMountController.ContextRoom.abstractRoom.name,
-                FilePath = NewObjectFilePathWithExtension,
-                Mod = ModMountController.ModMount.Mod,
-                DataJson = dataJson
-            };
-
-            try
-            {
-                newObjectData.Save();
-            }
-            catch (Exception ex)
-            {
-                NewObjectCreationErrorString = $"An exception occurred while saving the new object file. {ex.GetType()}. " +
-                    $"See logs for more info.";
-                ROMPlugin.Logger?.LogError($"An exception occurred while saving the new object file.\n" +
-                    $"{ex}");
-
-                return;
-            }
-
-            SpawningManager.SpawnedObjectsTracker.Add(newObjectData, new WeakReference<UpdatableAndDeletable>(newObject));
-            ModMountController.ContextRoom.AddObject(newObject);
-            ModMountController.ModMount.AddObjectData(newObjectData);
-
-            try
-            {
-                ModMountController.SaveMountFile();
-            }
-            catch (Exception ex)
-            {
-                NewObjectCreationErrorString = $"An exception occurred while saving the updated mount file. {ex.GetType()}. " +
-                    $"See logs for more info.";
-                ROMPlugin.Logger?.LogError($"An exception occurred while saving the updated mount file.\n" +
-                    $"{ex}");
-
-                return;
+                NewObjectCreationErrorString = ex.Message;
             }
         }
 
-        private ITypeOperator? GetHandlerBySelectionOrName()
+        private ITypeOperator? GetTypeOperatorByFilterText()
         {
-            if (NewObjectTypeOperator != null)
-                return NewObjectTypeOperator;
-
             return NewObjectTypeOperatorOptionsController.FilteredOptions.FirstOrDefault(opt => opt.Value.TypeId == NewObjectTypeFilterText)?.Value;
         }
 
