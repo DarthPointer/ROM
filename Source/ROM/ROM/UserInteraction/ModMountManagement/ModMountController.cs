@@ -182,6 +182,7 @@ namespace ROM.UserInteraction.ModMountManagement
 
             SpawningManager.SpawnedObjectsTracker.Remove(objectData);
             ModMount.ObjectsByRooms[ContextRoom.abstractRoom.name].Remove(objectData);
+            SaveMountFile();
         }
 
         [MemberNotNull(nameof(ContextRoom))]
