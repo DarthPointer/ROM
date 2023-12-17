@@ -40,33 +40,21 @@ namespace ROM.UserInteraction.ModMountManagement
             }
         }
 
-        private ModManager.Mod? SourceMod => ModMount.Mod;
+        private ModManager.Mod SourceMod => ModMount.Mod;
 
-        public bool CanWrite => SourceMod?.workshopMod == false;
+        public bool CanWrite => SourceMod.workshopMod == false;
         #endregion
 
         #region Constructors
         public ModMountController(ModMount modMount)
         {
             ModMount = modMount;
-
-            if (SourceMod == null)
-            {
-                ROMPlugin.Logger?.LogWarning($"ModMount has no mod assigned. " +
-                    $"Saving the changes of objects of this mount will be impossible.");
-            }
         }
         #endregion
 
         #region Methods
         public void SaveMountFile()
         {
-            if (SourceMod == null)
-            {
-                throw new InvalidOperationException($"{nameof(SaveMountFile)} is called for a controller with no mod assigned. " +
-                    $"This likely is caused by Mod IDs specified in the ROM Mount and modinfo being different.");
-            }
-
             if (SourceMod.workshopMod == true)
             {
                 throw new InvalidOperationException($"{nameof(SaveMountFile)} is called for the controller of the \"{SourceMod.id}\" mod mount, " +
