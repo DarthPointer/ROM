@@ -9,14 +9,15 @@ using UnityEngine;
 
 namespace ROM.UserInteraction.ObjectEditorElement
 {
-    public class TextFieldElement : IObjectEditorElement
+    public class TextFieldElement<T> : IObjectEditorElement
+    where T : notnull
     {
         private string _text;
 
-        private Func<float> Getter { get; }
-        private Action<float> Setter { get; }
+        private Func<T> Getter { get; }
+        private Action<T> Setter { get; }
 
-        private float Target
+        private T Target
         {
             get
             {
@@ -28,9 +29,9 @@ namespace ROM.UserInteraction.ObjectEditorElement
             }
         }
 
-        private float SavedValue { get; set; }
+        private T SavedValue { get; set; }
 
-        public bool HasChanges => SavedValue != Target;
+        public bool HasChanges => !SavedValue.Equals(Target);
 
         private string Text
         {
@@ -54,10 +55,14 @@ namespace ROM.UserInteraction.ObjectEditorElement
 
         private string? ErrorText { get; set; }
 
-        public float MinValue { get; set; } = float.MinValue;
-        public float MaxValue { get; set; } = float.MaxValue;
+        private Func<T, string> Formatter { get; }
 
-        public TextFieldElement(Func<float> getter, Action<float> setter, string displayName)
+        private TryParseValue Parser { get; }
+
+        private Func<T, bool> ValueValidator { get; }
+
+        public TextFieldElement(string displayName, Func<T> getter, Action<T> setter,
+            Func<T, string> formatter, TryParseValue parser, Func<T, bool> valueValidator)
         {
             Getter = getter;
             Setter = setter;
@@ -67,40 +72,38 @@ namespace ROM.UserInteraction.ObjectEditorElement
 
             InputElementId = GetHashCode().ToString();
             DisplayName = displayName;
+            Formatter = formatter;
+            Parser = parser;
+            ValueValidator = valueValidator;
         }
 
         private string GetTargetString()
         {
-            return Target.ToString("g8", CultureInfo.InvariantCulture);
+            return Formatter(Target);
         }
 
         private void ProcessInputString(string input)
         {
             ErrorText = null;
 
-            if (float.TryParse(input, NumberStyles.Any, CultureInfo.InvariantCulture, out float value))
+            if (Parser(input, out T value))
             {
                 ProcessInputValue(value);
                 return;
             }
 
-            ErrorText = $"Input string conversion to {typeof(float)} has failed.";
+            ErrorText = $"Input string conversion to {typeof(T)} has failed.";
         }
 
-        private void ProcessInputValue(float input)
+        private void ProcessInputValue(T input)
         {
-            if (AllowValue(input))
+            if (ValueValidator(input))
             {
                 Target = input;
                 return;
             }
 
-            ErrorText = $"The value has to be from {MinValue} to {MaxValue}.";
-        }
-
-        private bool AllowValue(float value)
-        {
-            return value >= MinValue && value <= MaxValue;
+            ErrorText = $"The value {Formatter(input)} has been rejected by the validator.";
         }
 
         public void OnSaved()
@@ -141,5 +144,7 @@ namespace ROM.UserInteraction.ObjectEditorElement
 
         public void DrawPostWindow()
         { }
+
+        public delegate bool TryParseValue(string input, out T value);
     }
 }
