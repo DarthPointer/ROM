@@ -2,6 +2,7 @@
 using Newtonsoft.Json.Linq;
 using ROM.ObjectDataStorage;
 using ROM.RoomObjectService;
+using ROM.UserInteraction.InroomManagement;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -20,6 +21,8 @@ namespace ROM.UserInteraction.ModMountManagement
 
         #region Fields
         private Room? _contextRoom;
+
+        private IReadOnlyList<ObjectData>? _currentRoomObjectsList;
         #endregion
 
         #region Properties
@@ -28,6 +31,8 @@ namespace ROM.UserInteraction.ModMountManagement
             get;
             private set;
         }
+
+        private IMGUIWindowsContainer ChildWindowsContainer { get; }
 
         public Room? ContextRoom
         {
@@ -46,15 +51,34 @@ namespace ROM.UserInteraction.ModMountManagement
             }
         }
 
-        public IReadOnlyList<ObjectData>? CurrentRoomObjectsList { get; private set; }
+        public IReadOnlyList<ObjectData>? CurrentRoomObjectsList
+        {
+            get
+            {
+                return _currentRoomObjectsList;
+            }
+            private set
+            {
+                if (_currentRoomObjectsList != value)
+                {
+                    _currentRoomObjectsList = value;
+                    UpdateEditObjectWindowsDict();
+                }
+            }
+        }
+
+        public IReadOnlyDictionary<ObjectData, EditRoomObjectWindow?> EditObjectWindows => EditObjectWindowsDict;
+        private Dictionary<ObjectData, EditRoomObjectWindow?> EditObjectWindowsDict { get; set; } = [];
+        private bool IsDroppingEditObjectWindows { get; set; } = false;
 
         public bool CanWrite => ModMount.Mod.workshopMod == false;
         #endregion
 
         #region Constructors
-        public ModMountController(ModMount modMount)
+        public ModMountController(ModMount modMount, IMGUIWindowsContainer childWindowsContainer)
         {
             ModMount = modMount;
+            ChildWindowsContainer = childWindowsContainer;
         }
         #endregion
 
@@ -159,6 +183,7 @@ namespace ROM.UserInteraction.ModMountManagement
             }
 
             ModMount.AddObjectData(newObjectData);
+            EditObjectWindowsDict[newObjectData] = null;
 
             try
             {
@@ -180,16 +205,9 @@ namespace ROM.UserInteraction.ModMountManagement
             if (SpawningManager.SpawnedObjectsTracker.TryGetValue(objectData, out var objRef) &&
                     objRef.TryGetTarget(out object obj))
             {
-                if (!TypeOperator.TypeOperators.TryGetValue(objectData.TypeId, out ITypeOperator typeOperator))
-                {
-                    string typeNotFoundErrorString = $"Tried to remove the object {objectData.FullLogString} but its type is not registered.";
-
-                    ROMPlugin.Logger?.LogError(typeNotFoundErrorString);
-                    throw new Exception(typeNotFoundErrorString);
-                }
-
                 try
                 {
+                    ITypeOperator typeOperator = objectData.GetTypeOperator();
                     typeOperator.RemoveFromRoom(obj, ContextRoom);
                 }
                 catch (Exception ex)
@@ -215,7 +233,46 @@ namespace ROM.UserInteraction.ModMountManagement
 
             SpawningManager.SpawnedObjectsTracker.Remove(objectData);
             ModMount.ObjectsByRooms[ContextRoom.abstractRoom.name].Remove(objectData);
+            EditObjectWindowsDict[objectData]?.Close();
+            EditObjectWindowsDict.Remove(objectData);
             SaveMountFile();
+        }
+
+        public void OpenWindowForObject(ObjectData objectData)
+        {
+            if (ContextRoom == null)
+                return;
+
+            if (EditObjectWindowsDict[objectData] == null)
+            {
+                if (SpawningManager.SpawnedObjectsTracker[objectData].TryGetTarget(out object roomObject))
+                {
+                    ITypeOperator typeOperator = objectData.GetTypeOperator();
+
+                    EditRoomObjectWindow window = new(this, objectData, roomObject, typeOperator.GetEditorElements(roomObject, ContextRoom));
+                    EditObjectWindowsDict[objectData] = window;
+                    ChildWindowsContainer.AddWindow(window);
+
+                    return;
+                }
+
+                string noSpawnedObjectFoundErrorString =
+                    $"Can not create a window to edit {objectData.FullLogString} because there is no object found spawned by it.";
+
+                ROMPlugin.Logger?.LogError(noSpawnedObjectFoundErrorString);
+                throw new Exception(noSpawnedObjectFoundErrorString);
+            }
+        }
+
+        public void CloseWindowForObject(ObjectData objectData)
+        {
+            EditObjectWindowsDict[objectData]?.Close();
+        }
+
+        public void RemoveWindowForObject(ObjectData objectData)
+        {
+            if (!IsDroppingEditObjectWindows)
+                EditObjectWindowsDict[objectData] = null;
         }
 
         private void UpdateCurrentRoomObjects()
@@ -233,6 +290,28 @@ namespace ROM.UserInteraction.ModMountManagement
             }
 
             CurrentRoomObjectsList = null;
+        }
+
+        private void UpdateEditObjectWindowsDict()
+        {
+            IsDroppingEditObjectWindows = true;
+
+            foreach (EditRoomObjectWindow? editRoomObjectWindow in EditObjectWindowsDict.Values)
+            {
+                editRoomObjectWindow?.Close();
+            }
+
+            IsDroppingEditObjectWindows = false;
+
+            EditObjectWindowsDict = [];
+
+            if (CurrentRoomObjectsList != null)
+            {
+                foreach (ObjectData objectData in CurrentRoomObjectsList)
+                {
+                    EditObjectWindowsDict[objectData] = null;
+                }
+            }
         }
 
         [MemberNotNull(nameof(ContextRoom))]

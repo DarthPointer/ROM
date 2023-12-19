@@ -72,7 +72,7 @@ namespace ROM.UserInteraction.ModMountManagement
             _windowRect = new Rect(10, 10, 0, 0);
 
             ObjectRegistry = objectRegistry;
-            ModMountControllers = ObjectRegistry.ModMounts.Select(mount => new StoredModMountController(new(mount))).ToList();
+            ModMountControllers = ObjectRegistry.ModMounts.Select(mount => new StoredModMountController(new(mount, ChildWindowsContainer))).ToList();
 
             PopulateActiveLocalModsWithNoMountLoaded();
         }
@@ -229,7 +229,7 @@ namespace ROM.UserInteraction.ModMountManagement
         {
             ModMount newMount = new ModMount(mod);
 
-            ModMountController newController = new(newMount);
+            ModMountController newController = new(newMount, ChildWindowsContainer);
 
             bool mountSavedSuccessfully = true;
             try

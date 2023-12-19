@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using ROM.RoomObjectService;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -111,6 +112,19 @@ namespace ROM.ObjectDataStorage
             }
 
             return GetPrimarySourceFilePath(Mod, FilePath);
+        }
+
+        public ITypeOperator GetTypeOperator()
+        {
+            if (TypeOperator.TypeOperators.TryGetValue(TypeId, out ITypeOperator typeOperator))
+            {
+                return typeOperator;
+            }
+
+            string typeNotFoundErrorText = $"Can not get room object type {TypeId} because it is not registered.";
+
+            ROMPlugin.Logger?.LogError(typeNotFoundErrorText);
+            throw new Exception(typeNotFoundErrorText);
         }
 
         public static string GetPrimarySourceFilePath(ModManager.Mod mod, string objectFilePath)

@@ -44,19 +44,13 @@ namespace ROM.RoomObjectService
             {
                 try
                 {
-                    if (TypeOperator.TypeOperators.TryGetValue(objectData.TypeId, out var typeOperator))
-                    {
-                        object newObj = typeOperator.Load(objectData.DataJson, room);
-                        (newObj as ICallAfterPropertiesSet)?.OnAfterPropertiesSet();
+                    ITypeOperator typeOperator = objectData.GetTypeOperator();
 
-                        SpawnedObjectsTracker[objectData] = new(newObj);
-                        typeOperator.AddToRoom(newObj, room);
-                    }
-                    else
-                    {
-                        ROMPlugin.Logger?.LogError(
-                            $"Could not load object {objectData.FullLogString} because type {objectData.TypeId} is not registered.");
-                    }
+                    object newObj = typeOperator.Load(objectData.DataJson, room);
+                    (newObj as ICallAfterPropertiesSet)?.OnAfterPropertiesSet();
+
+                    SpawnedObjectsTracker[objectData] = new(newObj);
+                    typeOperator.AddToRoom(newObj, room);
                 }
                 catch (Exception ex)
                 {

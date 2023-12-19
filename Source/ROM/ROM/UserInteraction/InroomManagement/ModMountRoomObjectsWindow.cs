@@ -109,6 +109,7 @@ namespace ROM.UserInteraction.InroomManagement
 
         private string? NewObjectCreationErrorString { get; set; } = null;
 
+        private ObjectData? ConfirmCloseWindowUnsaved { get; set; } = null;
         private ObjectData? ConfirmDeletingObject { get; set; } = null;
         /// <summary>
         /// Delete the <see cref="ConfirmDeletingObject"/>?
@@ -190,6 +191,7 @@ namespace ROM.UserInteraction.InroomManagement
 
             GUILayout.Label($"{objectData.FilePath}: {objectData.TypeId}");
             GUILayout.FlexibleSpace();
+            DrawToggleObjectWindowButton(objectData);
             DrawDeleteObjectButton(objectData);
 
             GUILayout.EndHorizontal();
@@ -197,6 +199,57 @@ namespace ROM.UserInteraction.InroomManagement
             if (ConfirmDeletingObject == objectData)
             {
                 GUILayout.Label($"Click the cross button again to delete {objectData.FilePath}.");
+            }
+
+            if (ConfirmCloseWindowUnsaved == objectData)
+            {
+                GUILayout.Label($"Click the minus button again to close the window with unsaved changes.");
+            }
+        }
+
+        private void DrawToggleObjectWindowButton(ObjectData objectData)
+        {
+            if (ModMountController == null)
+                return;
+
+            EditRoomObjectWindow? editRoomObjectWindow = ModMountController.EditObjectWindows[objectData];
+            if (editRoomObjectWindow == null)
+            {
+                if (GUILayout.Button("+"))
+                {
+                    ModMountController.OpenWindowForObject(objectData);
+                }
+
+                if (ConfirmCloseWindowUnsaved == objectData)
+                {
+                    ConfirmCloseWindowUnsaved = null;
+                }
+
+                return;
+            }
+
+            if (GUILayout.Button("-"))
+            {
+                if (ConfirmCloseWindowUnsaved == objectData)
+                {
+                    ModMountController.CloseWindowForObject(objectData);
+                    ConfirmCloseWindowUnsaved = null;
+                    return;
+                }
+
+                if (editRoomObjectWindow.HasChanges)
+                {
+                    ConfirmCloseWindowUnsaved = objectData;
+                    return;
+                }
+
+                ModMountController.CloseWindowForObject(objectData);
+            }
+
+            EditRoomObjectWindow? editObjectWindow = ModMountController.EditObjectWindows[objectData];
+            if (ConfirmCloseWindowUnsaved == objectData && editObjectWindow?.HasChanges != true)
+            {
+                ConfirmCloseWindowUnsaved = null;
             }
         }
 
@@ -215,6 +268,10 @@ namespace ROM.UserInteraction.InroomManagement
                 }
 
                 DeleteObjectConfirmed = true;
+                if (ConfirmCloseWindowUnsaved == objectData)
+                {
+                    ConfirmCloseWindowUnsaved = null;
+                }
             }
         }
 
