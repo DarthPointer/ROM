@@ -170,6 +170,14 @@ namespace ROM.UserInteraction.InroomManagement
             this.RemoveFromContainer();
             OwningController.RemoveWindowForObject(ObjectData);
         }
+
+        protected override void PostCall()
+        {
+            foreach (IObjectEditorElement objectEditorElement in EditorElements)
+            {
+                objectEditorElement.DrawPostWindow();
+            }
+        }
         #endregion
     }
 }

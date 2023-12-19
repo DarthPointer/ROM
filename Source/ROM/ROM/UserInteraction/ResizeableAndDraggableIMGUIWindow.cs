@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -22,6 +23,8 @@ namespace ROM.UserInteraction
             _windowRect = GUILayout.Window(GetHashCode(), _windowRect, InternalWindowFunction, HeaderText);
 
             _windowRect.size = _windowSize;
+
+            PostCall();
         }
 
         private void InternalWindowFunction(int id)
@@ -39,6 +42,9 @@ namespace ROM.UserInteraction
         }
 
         protected virtual void WindowFunction(int id)
+        { }
+
+        protected virtual void PostCall()
         { }
     }
 }
