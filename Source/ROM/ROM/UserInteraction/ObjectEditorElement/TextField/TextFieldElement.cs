@@ -70,7 +70,6 @@ namespace ROM.UserInteraction.ObjectEditorElement.TextField
             Setter = setter;
 
             SavedValue = Target;
-            _text = GetTargetString();
 
             InputElementId = GetHashCode().ToString();
             DisplayName = displayName;
@@ -78,6 +77,8 @@ namespace ROM.UserInteraction.ObjectEditorElement.TextField
             Parser = configuration.Parser;
             ValueValidator = configuration.ValueValidator;
             ValueRestrictor = configuration.ValueRestrictor;
+
+            _text = GetTargetString();
         }
 
         private string GetTargetString()

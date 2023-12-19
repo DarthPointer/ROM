@@ -21,8 +21,6 @@ namespace ROM.UserInteraction.ModMountManagement
 
         #region Fields
         private Room? _contextRoom;
-
-        private IReadOnlyList<ObjectData>? _currentRoomObjectsList;
         #endregion
 
         #region Properties
@@ -46,7 +44,7 @@ namespace ROM.UserInteraction.ModMountManagement
                 {
                     _contextRoom = value;
 
-                    UpdateCurrentRoomObjects();
+                    OnContextRoomChanged();
                 }
             }
         }
@@ -55,15 +53,15 @@ namespace ROM.UserInteraction.ModMountManagement
         {
             get
             {
-                return _currentRoomObjectsList;
-            }
-            private set
-            {
-                if (_currentRoomObjectsList != value)
+                if (ContextRoom != null)
                 {
-                    _currentRoomObjectsList = value;
-                    UpdateEditObjectWindowsDict();
+                    if (ModMount.ObjectsByRooms.TryGetValue(ContextRoom.abstractRoom.name, out List<ObjectData> list))
+                    {
+                        return list;
+                    }
                 }
+
+                return null;
             }
         }
 
@@ -275,24 +273,7 @@ namespace ROM.UserInteraction.ModMountManagement
                 EditObjectWindowsDict[objectData] = null;
         }
 
-        private void UpdateCurrentRoomObjects()
-        {
-            if (ContextRoom == null)
-            {
-                CurrentRoomObjectsList = null;
-                return;
-            }
-
-            if (ModMount.ObjectsByRooms.TryGetValue(ContextRoom.abstractRoom.name, out List<ObjectData> result))
-            {
-                CurrentRoomObjectsList = result;
-                return;
-            }
-
-            CurrentRoomObjectsList = null;
-        }
-
-        private void UpdateEditObjectWindowsDict()
+        private void OnContextRoomChanged()
         {
             IsDroppingEditObjectWindows = true;
 
