@@ -7,9 +7,9 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace ROM.UserInteraction.ObjectEditorElement
+namespace ROM.UserInteraction.ObjectEditorElement.TextField
 {
-    public class TextFieldElement<T> : IObjectEditorElement
+    internal class TextFieldElement<T> : IObjectEditorElement
     where T : notnull
     {
         private string _text;
@@ -41,7 +41,7 @@ namespace ROM.UserInteraction.ObjectEditorElement
             }
             set
             {
-                if (_text  != value)
+                if (_text != value)
                 {
                     _text = value;
                     ProcessInputString(value);
@@ -57,12 +57,14 @@ namespace ROM.UserInteraction.ObjectEditorElement
 
         private Func<T, string> Formatter { get; }
 
-        private TryParseValue Parser { get; }
+        private TryParseValue<T> Parser { get; }
 
         private Func<T, bool> ValueValidator { get; }
 
+        private Func<T, T>? ValueRestrictor { get; }
+
         public TextFieldElement(string displayName, Func<T> getter, Action<T> setter,
-            Func<T, string> formatter, TryParseValue parser, Func<T, bool> valueValidator)
+            TextFieldConfiguration<T> configuration)
         {
             Getter = getter;
             Setter = setter;
@@ -72,9 +74,10 @@ namespace ROM.UserInteraction.ObjectEditorElement
 
             InputElementId = GetHashCode().ToString();
             DisplayName = displayName;
-            Formatter = formatter;
-            Parser = parser;
-            ValueValidator = valueValidator;
+            Formatter = configuration.Formatter;
+            Parser = configuration.Parser;
+            ValueValidator = configuration.ValueValidator;
+            ValueRestrictor = configuration.ValueRestrictor;
         }
 
         private string GetTargetString()
@@ -99,7 +102,8 @@ namespace ROM.UserInteraction.ObjectEditorElement
         {
             if (ValueValidator(input))
             {
-                Target = input;
+                Target = ValueRestrictor == null ?
+                    input : ValueRestrictor(input);
                 return;
             }
 
@@ -144,7 +148,33 @@ namespace ROM.UserInteraction.ObjectEditorElement
 
         public void DrawPostWindow()
         { }
+    }
 
-        public delegate bool TryParseValue(string input, out T value);
+    public static class TextFieldElement
+    {
+        // A wrap to circumvent verbose typeparam in calls.
+        public static IObjectEditorElement TextField<T>(string displayName, Func<T> getter, Action<T> setter, TextFieldConfiguration<T> configuration)
+            where T : notnull
+        {
+            return new TextFieldElement<T>(displayName, getter, setter, configuration);
+        }
+
+        public static IObjectEditorElement TextField(string displayName, Func<float> getter, Action<float> setter,
+            TextFieldConfiguration<float>? configuration = null)
+        {
+            return TextField<float>(displayName, getter, setter, configuration ?? new FloatTextFieldConfiguration());
+        }
+
+        public static IObjectEditorElement TextField(string displayName, Func<int> getter, Action<int> setter,
+            TextFieldConfiguration<int>? configuration = null)
+        {
+            return TextField<int>(displayName, getter, setter, configuration ?? new IntTextFieldConfiguration());
+        }
+
+        public static IObjectEditorElement TextField(string displayName, Func<string> getter, Action<string> setter,
+            TextFieldConfiguration<string>? configuration = null)
+        {
+            return TextField<string>(displayName, getter, setter, configuration ?? new StringTextFieldConfiguration());
+        }
     }
 }
