@@ -1,0 +1,2 @@
+[ADD]?DarthPointer.ROMTestObjects
+[ADD]SU_A37\FunnyObject.json

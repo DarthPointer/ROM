@@ -163,6 +163,8 @@ namespace ROM.UserInteraction.InroomManagement
             {
                 editorElement.ResetChanges();
             }
+
+            TriedToCloseUnsaved = false;
         }
 
         public void Close()

@@ -1,0 +1,15 @@
+{
+  "RoomId": "SU_A37",
+  "TypeId": "FunnyObject",
+  "DataJson": {
+    "VersionId": "0.0.0",
+    "Data": {
+      "JustAFloat": 0.0,
+      "JustAnInt": 0,
+      "NormFloat": 0.0,
+      "PlusMinusTenFloat": 0.0,
+      "PlusFiveMinusThreeInt": 0,
+      "CursedChar": "\u0000"
+    }
+  }
+}

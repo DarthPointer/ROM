@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.AccessControl;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -20,7 +21,11 @@ namespace ROM.UserInteraction.ObjectEditorElement.Scrollbar
         protected abstract float Left { get; }
         protected abstract float Right { get; }
 
-        private float LastPos { get; set; }
+        private float PipWidth => (Right - Left) / 20;
+        private float ExtraLength => PipWidth / 10;
+
+        private float Min => Math.Min(Left, Right);
+        private float Max => Math.Max(Left, Right);
 
         private T Target
         {
@@ -42,7 +47,6 @@ namespace ROM.UserInteraction.ObjectEditorElement.Scrollbar
             Setter = setter;
 
             SavedValue = Target;
-            LastPos = ValueToPos(Target);
         }
         #endregion
 
@@ -55,10 +59,12 @@ namespace ROM.UserInteraction.ObjectEditorElement.Scrollbar
         public void Draw()
         {
             GUILayout.Label(DisplayName + ' ' + Formatter(Target));
-            float newPos = GUILayout.HorizontalScrollbar(ValueToPos(Target), 3, Left, Right);
-            if (newPos != LastPos)
+            float currentPos = ValueToPos(Target);
+            float newPos = GUILayout.HorizontalScrollbar(currentPos, PipWidth, Left - ExtraLength, Right + PipWidth + ExtraLength);
+            newPos = Mathf.Min(newPos, Max);
+            newPos = Mathf.Max(newPos, Min);
+            if (newPos != currentPos)
             {
-                LastPos = newPos;
                 Target = PosToValue(newPos);
             }
         }
