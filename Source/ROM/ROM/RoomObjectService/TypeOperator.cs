@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace ROM.RoomObjectService
 {
-    internal interface ITypeOperator
+    public interface ITypeOperator
     {
         string TypeId { get; }
 
@@ -16,71 +16,61 @@ namespace ROM.RoomObjectService
 
         object Load(JToken dataJson, Room room);
 
-        void AddToRoom(object obj, Room room);
+        JToken Save(object obj);
 
-        IEnumerable<IObjectEditorElement> GetEditorElements(object obj, Room room);
+        void AddToRoom(object obj, Room room);
 
         void RemoveFromRoom(object obj, Room room);
 
-        JToken Save(object obj);
+        IEnumerable<IObjectEditorElement> GetEditorElements(object obj, Room room);
     }
 
     public static class TypeOperator
     {
         internal static Dictionary<string, ITypeOperator> TypeOperators { get; } = [];
 
-        public static void RegisterType<TOBJ>(string typeId,
-            Func<Room, TOBJ> createNewCall, Func<JToken, Room, TOBJ> loadCall, Action<TOBJ, Room> addToRoomCall,
-            Func<TOBJ, Room, IEnumerable<IObjectEditorElement>> getEditorElementsCall,
-            Func<TOBJ, JToken> saveCall, Action<TOBJ, Room> removeFromRoomCall)
-            where TOBJ : notnull
+        public static void RegisterType<TOperator>(TOperator typeOperator)
+            where TOperator : ITypeOperator
         {
-            if (TypeOperators.ContainsKey(typeId))
+            if (TypeOperators.ContainsKey(typeOperator.TypeId))
             {
-                ROMPlugin.Logger?.LogWarning($"Operator for type {typeId} already is set, overwriting.");
+                ROMPlugin.Logger?.LogWarning($"Operator for type {typeOperator.TypeId} already is set, overwriting.");
             }
 
-            TypeOperators[typeId] = new TypeOperator<TOBJ>(typeId, createNewCall, loadCall, addToRoomCall, getEditorElementsCall, saveCall, removeFromRoomCall);
+            TypeOperators[typeOperator.TypeId] = typeOperator;
         }
 
-        public static void RegisterType<TUAD>(string typeId,
-            Func<Room, TUAD> createNewCall, Func<JToken, Room, TUAD> loadCall,
-            Func<TUAD, Room, IEnumerable<IObjectEditorElement>> getEditorElementsCall,
-            Func<TUAD, JToken> saveCall)
-            where TUAD : UpdatableAndDeletable
+        public static void RegisterType<TOperator>()
+            where TOperator : ITypeOperator, new()
         {
-            RegisterType(typeId, createNewCall, loadCall, TypeOperatorUtils.AddUADToRoom, getEditorElementsCall, saveCall, TypeOperatorUtils.RemoveUADFromRoom);
+            RegisterType(new TOperator());
         }
     }
 
-    internal class TypeOperator<TOBJ>(string typeId,
-        Func<Room, TOBJ> createNewCall, Func<JToken, Room, TOBJ> loadCall, Action<TOBJ, Room> addToRoomCall,
-        Func<TOBJ, Room, IEnumerable<IObjectEditorElement>> getEditorElementsCall,
-        Func<TOBJ, JToken> saveCall, Action<TOBJ, Room> removeFromRoomCall)
-        : ITypeOperator
+    public abstract class TypeOperator<TOBJ> : ITypeOperator
         where TOBJ : notnull
     {
         #region Properties
-        public string TypeId { get; } = typeId;
+        public abstract string TypeId { get; }
 
-        
-        private Func<Room, TOBJ> CreateNewCall { get; } = createNewCall;
-        object ITypeOperator.CreateNew(Room room) => CreateNewCall(room);
 
-        private Func<JToken, Room, TOBJ> LoadCall { get; } = loadCall;
-        object ITypeOperator.Load(JToken dataJson, Room room) => LoadCall(dataJson, room);
+        public abstract TOBJ CreateNew(Room room);
+        object ITypeOperator.CreateNew(Room room) => CreateNew(room);
 
-        private Action<TOBJ, Room> AddToRoomCall { get; } = addToRoomCall;
-        void ITypeOperator.AddToRoom(object obj, Room room) => AddToRoomCall(AssureObjectType(obj), room);
+        public abstract TOBJ Load(JToken dataJson, Room room);
+        object ITypeOperator.Load(JToken dataJson, Room room) => Load(dataJson, room);
 
-        private Func<TOBJ, JToken> SaveCall { get; } = saveCall;
-        JToken ITypeOperator.Save(object obj) => SaveCall(AssureObjectType(obj));
+        public abstract JToken Save(TOBJ obj);
+        JToken ITypeOperator.Save(object obj) => Save(AssureObjectType(obj));
 
-        private Func<TOBJ, Room, IEnumerable<IObjectEditorElement>> GetEditorElementsCall { get; } = getEditorElementsCall;
-        IEnumerable<IObjectEditorElement> ITypeOperator.GetEditorElements(object obj, Room room) => GetEditorElementsCall(AssureObjectType(obj), room);
+        public abstract void AddToRoom(TOBJ obj, Room room);
+        void ITypeOperator.AddToRoom(object obj, Room room) => AddToRoom(AssureObjectType(obj), room);
 
-        private Action<TOBJ, Room> RemoveFromRoomCall { get; } = removeFromRoomCall;
-        void ITypeOperator.RemoveFromRoom(object obj, Room room) => RemoveFromRoomCall(AssureObjectType(obj), room);
+        public abstract IEnumerable<IObjectEditorElement> GetEditorElements(TOBJ obj, Room room);
+        IEnumerable<IObjectEditorElement> ITypeOperator.GetEditorElements(object obj, Room room) => GetEditorElements(AssureObjectType(obj), room);
+
+        public abstract void RemoveFromRoom(TOBJ obj, Room room);
+        void ITypeOperator.RemoveFromRoom(object obj, Room room) => RemoveFromRoom(AssureObjectType(obj), room);
 
         private TOBJ AssureObjectType(object obj)
         {

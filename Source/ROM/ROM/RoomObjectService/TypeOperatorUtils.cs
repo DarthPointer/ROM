@@ -11,56 +11,6 @@ namespace ROM.RoomObjectService
 {
     public static class TypeOperatorUtils
     {
-        internal class VersionedLoader<TOBJ>
-            where TOBJ : notnull
-        {
-            public Func<JToken, Room, TOBJ>? DefaultLoader { get; }
-            public Dictionary<string, Func<JToken, Room, TOBJ>> SupportedVersionLoaders { get; }
-
-            public VersionedLoader(Func<JToken, Room, TOBJ>? defaultLoader, IEnumerable<LoadVersion<TOBJ>> supportedVersions)
-            {
-                DefaultLoader = defaultLoader;
-
-                SupportedVersionLoaders = [];
-                foreach (LoadVersion<TOBJ> version in supportedVersions)
-                {
-                    if (SupportedVersionLoaders.ContainsKey(version.VersionId))
-                    {
-                        ROMPlugin.Logger?.LogWarning($"Duplicate supported version {version.VersionId} supplied (type {typeof(TOBJ)}). Overwriting.");
-                    }
-
-                    SupportedVersionLoaders[version.VersionId] = version.LoadCall;
-                }
-            }
-
-            public TOBJ Load(JToken objectData, Room room)
-            {
-                if (objectData.ToObject<VersionedJson>() is VersionedJson versionedJson)
-                {
-                    if (SupportedVersionLoaders.TryGetValue(versionedJson.VersionId, out var loader))
-                    {
-                        return loader(versionedJson.Data, room);
-                    }
-
-                    if (DefaultLoader != null)
-                    {
-                        return DefaultLoader(versionedJson.Data, room);
-                    }
-
-                    string versionNotSupportedError = $"The versioned loader provided for {typeof(TOBJ)} can not process the received {nameof(objectData)} " +
-                        $"because its version {versionedJson.VersionId} is not supported and no default loader is specified.";
-
-                    ROMPlugin.Logger?.LogError(versionNotSupportedError);
-                    throw new ArgumentException(versionNotSupportedError, nameof(objectData));
-                }
-
-                string notAVersionedJsonError = $"Json data received for the creation of {typeof(TOBJ)} was not parsable as {typeof(VersionedJson)}.";
-
-                ROMPlugin.Logger?.LogError(notAVersionedJsonError);
-                throw new ArgumentException(notAVersionedJsonError, nameof(objectData));
-            }
-        }
-
         public class LoadVersion<TOBJ>(string versionId, Func<JToken, Room, TOBJ> loadCall)
             where TOBJ : notnull
         {
@@ -68,18 +18,18 @@ namespace ROM.RoomObjectService
             public Func<JToken, Room, TOBJ> LoadCall = loadCall;
         }
 
-        public static Func<JToken, Room, TOBJ> GetVersionedLoadCall<TOBJ>
+        public static VersionedLoader<TOBJ> CreateVersionedLoader<TOBJ>
             (Func<JToken, Room, TOBJ>? defaultLoad = null, IEnumerable<LoadVersion<TOBJ>> supportedVersions = null!)
             where TOBJ : notnull
         {
-             return new VersionedLoader<TOBJ>(defaultLoad, supportedVersions ?? Enumerable.Empty<LoadVersion<TOBJ>>()).Load;
+             return new VersionedLoader<TOBJ>(defaultLoad, supportedVersions ?? Enumerable.Empty<LoadVersion<TOBJ>>());
         }
 
-        public static Func<JToken, Room, TOBJ> GetVersionedLoadCall<TOBJ>
+        public static VersionedLoader<TOBJ> CreateVersionedLoader<TOBJ>
             (Func<JToken, Room, TOBJ>? defaultLoad = null, params LoadVersion<TOBJ>[] supportedVersions)
             where TOBJ : notnull
         {
-            return GetVersionedLoadCall(defaultLoad, supportedVersions as IEnumerable<LoadVersion<TOBJ>>);
+            return CreateVersionedLoader(defaultLoad, supportedVersions as IEnumerable<LoadVersion<TOBJ>>);
         }
 
         public static TOBJ TrivialLoad<TOBJ>(JToken data, Room room)
