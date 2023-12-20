@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ROM.UserInteraction
 {
-    internal class Option<TOption>(TOption value, string name)
+    public class Option<TOption>(TOption value, string name)
     {
         public TOption Value { get; } = value;
 

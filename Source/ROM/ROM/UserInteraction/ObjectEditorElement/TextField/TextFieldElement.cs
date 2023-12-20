@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace ROM.UserInteraction.ObjectEditorElement.TextField
 {
-    internal class TextFieldElement<T> : IObjectEditorElement
+    public class TextFieldElement<T> : IObjectEditorElement
     where T : notnull
     {
         private string _text;
@@ -122,7 +122,7 @@ namespace ROM.UserInteraction.ObjectEditorElement.TextField
             Target = SavedValue;
         }
 
-        void IObjectEditorElement.Draw()
+        public void Draw()
         {
             GUILayout.BeginVertical();
             GUILayout.BeginHorizontal();
