@@ -58,9 +58,22 @@ namespace ROM.UserInteraction.ObjectEditorElement.Scrollbar
 
         public void Draw()
         {
+            float left, right;
+
+            if (Left < Right)
+            {
+                left = Left - ExtraLength;
+                right = Right + PipWidth + ExtraLength;
+            }
+            else
+            {
+                left = Left - PipWidth - ExtraLength;
+                right = Right + ExtraLength;
+            }
+
             GUILayout.Label(DisplayName + ' ' + Formatter(Target));
             float currentPos = ValueToPos(Target);
-            float newPos = GUILayout.HorizontalScrollbar(currentPos, PipWidth, Left - ExtraLength, Right + PipWidth + ExtraLength);
+            float newPos = GUILayout.HorizontalScrollbar(currentPos, Mathf.Abs(PipWidth), left, right);
             newPos = Mathf.Min(newPos, Max);
             newPos = Mathf.Max(newPos, Min);
             if (newPos != currentPos)
