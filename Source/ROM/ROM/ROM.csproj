@@ -28,7 +28,7 @@
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="copy $(TargetDir)ROM.dll $(TargetDir)..\..\..\..\..\..\InstallDir\ROM\Plugins\ROM.dll /Y&#xD;&#xA;copy $(TargetDir)ROM.pdb $(TargetDir)..\..\..\..\..\..\InstallDir\ROM\Plugins\ROM.pdb /Y&#xD;&#xA;&#xD;&#xA;xcopy $(TargetDir)..\..\..\..\..\..\InstallDir\ROM\ &quot;%25rwinstall%25\RainWorld_dbg_Data\StreamingAssets\Mods\ROM\&quot; /s /y" />
+    <Copy SourceFiles="$(TargetPath);$(TargetDir)$(TargetName).pdb" DestinationFolder="$(ProjectDir)../ROM/ROM/plugins/" />
   </Target>
 
 </Project>
