@@ -1,7 +1,8 @@
 lib/*
 !lib/readme.txt
 source/ROM/.vs
-source/ROM/ROM/bin
-source/ROM/ROM/obj
+source/ROM/*/bin
+source/ROM/*/obj
 *.dll
 *.pdb
+
