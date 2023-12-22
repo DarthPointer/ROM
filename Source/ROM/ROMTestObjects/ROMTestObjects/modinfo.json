@@ -2,7 +2,7 @@
 	"id": "DarthPointer.ROMTestObjects",
 	"name": "ROM Test Objects",
 	"version": "0.0.0",
-	"requirements": ["DarthPointer.ROMTestObjects"],
-	"requirement_names": ["ROMTestObjects"],
+	"requirements": ["DarthPointer.ROM"],
+	"requirement_names": ["Room Object Manager"],
 	"priorities": []
 }
