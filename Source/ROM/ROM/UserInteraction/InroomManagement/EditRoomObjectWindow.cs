@@ -24,6 +24,9 @@ namespace ROM.UserInteraction.InroomManagement
         #endregion
 
         #region Properties
+        protected override string HeaderText => WindowHeader;
+        private string WindowHeader { get; }
+
         private ModMountController OwningController { get; }
 
         private IReadOnlyList<IObjectEditorElement> EditorElements { get; }
@@ -43,6 +46,8 @@ namespace ROM.UserInteraction.InroomManagement
         public EditRoomObjectWindow(ModMountController owningController,
             ObjectData objectData, object targetObject, IEnumerable<IObjectEditorElement> editorElements)
         {
+            WindowHeader = objectData.FilePath;
+
             _windowRect = new(100, 100, 300, 300);
 
             OwningController = owningController;
