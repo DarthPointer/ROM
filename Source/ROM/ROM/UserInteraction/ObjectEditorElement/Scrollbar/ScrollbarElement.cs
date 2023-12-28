@@ -10,7 +10,6 @@ using UnityEngine;
 namespace ROM.UserInteraction.ObjectEditorElement.Scrollbar
 {
     public abstract class AbstractScrollbarElement<T> : IObjectEditorElement
-        where T : notnull
     {
         #region Properties
         private string DisplayName { get; }
@@ -35,7 +34,7 @@ namespace ROM.UserInteraction.ObjectEditorElement.Scrollbar
 
         private T SavedValue { get; set; }
 
-        public bool HasChanges => !SavedValue.Equals(Getter());
+        public bool HasChanges => !Equals(SavedValue, Getter());
         #endregion
 
         #region Constructors
@@ -98,7 +97,6 @@ namespace ROM.UserInteraction.ObjectEditorElement.Scrollbar
     }
 
     public class ScrollbarElement<T> : AbstractScrollbarElement<T>
-        where T: notnull
     {
         #region Properties
         protected override float Left { get; }
@@ -144,7 +142,6 @@ namespace ROM.UserInteraction.ObjectEditorElement.Scrollbar
     }
 
     public class OptionsScrollbarElement<T> : AbstractScrollbarElement<T>
-        where T : notnull
     {
         protected override float Left => 0;
         protected override float Right => Options.Count - 1;
@@ -170,7 +167,7 @@ namespace ROM.UserInteraction.ObjectEditorElement.Scrollbar
         {
             for (int i = 0; i < Options.Count; i++)
             {
-                if (value.Equals(Options[i]))
+                if (Equals(value, Options[i]))
                     return i;
             }
 

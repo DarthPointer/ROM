@@ -27,5 +27,15 @@ namespace ROM.IMGUIUtilities
 
             return tex;
         }
+
+        public static void HorizontalLine(Texture2D? fillTexture = null, int height = 2)
+        {
+            fillTexture ??= GetSingleColorTexture(16, 16, Color.white);
+
+            GUIStyle style = new();
+            style.normal.background = fillTexture;
+
+            GUILayout.Label("", style, GUILayout.Height(height));
+        }
     }
 }

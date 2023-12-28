@@ -25,20 +25,6 @@ namespace ROM.UserInteraction.InroomManagement
         private ITypeOperator? _newObjectTypeOperator = null;
         #endregion
 
-        #region Consts
-        private static readonly Texture2D WHITE_TEXTUE;
-        private static readonly GUIStyle WHITE_BACKGROUND;
-        #endregion
-
-        static ModMountRoomObjectsWindow()
-        {
-            WHITE_TEXTUE = CommonIMGUIUtils.GetSingleColorTexture(16, 16, Color.white);
-
-            WHITE_BACKGROUND = new();
-
-            WHITE_BACKGROUND.normal.background = WHITE_TEXTUE;
-        }
-
         #region Properties
         protected override string HeaderText => $"{ModMountController?.ContextRoom?.abstractRoom.name ?? "NO ROOM"} objects of {ModMountController?.ModMount.Mod?.id ?? "NO MOD SET"} mount.";
 
@@ -302,7 +288,7 @@ namespace ROM.UserInteraction.InroomManagement
             if (ModMountController?.ContextRoom == null)
                 return;
 
-            GUILayout.Label("", WHITE_BACKGROUND, GUILayout.Height(2));
+            CommonIMGUIUtils.HorizontalLine();
 
             if (ModMountController == null)
             {

@@ -12,6 +12,7 @@ namespace ROM.UserInteraction.ObjectEditorElement
 {
     public static class Elements
     {
+        #region TextField
         // A wrap to circumvent verbose typeparam in calls.
         public static IObjectEditorElement TextField<T>(string displayName, Func<T> getter, Action<T> setter, TextFieldConfiguration<T> configuration)
             where T : notnull
@@ -36,9 +37,10 @@ namespace ROM.UserInteraction.ObjectEditorElement
         {
             return TextField<string>(displayName, getter, setter, configuration ?? new StringTextFieldConfiguration());
         }
+        #endregion
 
+        #region Scrollbar
         public static IObjectEditorElement Scrollbar<T>(string displayName, Func<T> getter, Action<T> setter, ScrollbarConfiguration<T> configuration)
-            where T : notnull
         {
             return new ScrollbarElement<T>(displayName, getter, setter, configuration.Left, configuration.Right,
                 configuration.PosToValue, configuration.ValueToPos, configuration.ValueFormatter);
@@ -57,9 +59,34 @@ namespace ROM.UserInteraction.ObjectEditorElement
         }
 
         public static IObjectEditorElement Scrollbar<T>(string displayName, Func<T> getter, Action<T> setter, IEnumerable<Option<T>> options)
-            where T : notnull
         {
             return new OptionsScrollbarElement<T>(displayName, getter, setter, options);
         }
+        #endregion
+
+        #region Checkbox
+        public static IObjectEditorElement Checkbox(string displayName, Func<bool> getter, Action<bool> setter)
+        {
+            return new CheckboxElement(displayName, getter, setter);
+        }
+        #endregion
+
+        #region CollapsableOptionSelect
+        public static IObjectEditorElement CollapsableOptionSelect<T>(string header, Func<T> getter, Action<T> setter,
+            IEnumerable<Option<T>> options)
+        {
+            return new CollapsableOptionSelectElement<T>(header, getter, setter, options);
+        }
+
+        public static IObjectEditorElement CollapsableOptionSelect<TEnum>(string header, Func<TEnum> getter, Action<TEnum> setter)
+            where TEnum : Enum
+        {
+            IEnumerable<Option<TEnum>> options = Enum.GetValues(typeof(TEnum)).Cast<TEnum>().
+                Select(val =>
+                new Option<TEnum>(val, Enum.GetName(typeof(TEnum), val)));
+
+            return CollapsableOptionSelect(header, getter, setter, options);
+        }
+        #endregion
     }
 }

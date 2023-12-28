@@ -9,7 +9,6 @@ using UnityEngine;
 namespace ROM.UserInteraction.ObjectEditorElement.Scrollbar
 {
     public class ScrollbarConfiguration<T>(float left, float right, Func<float, T> posToValue, Func<T, float> ValueToPos, Func<T, string> valueFormatter)
-        where T : notnull
     {
         public float Left { get; set; } = left;
         public float Right { get; set; } = right;
