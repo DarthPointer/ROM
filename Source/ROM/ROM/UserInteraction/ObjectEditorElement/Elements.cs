@@ -87,6 +87,12 @@ namespace ROM.UserInteraction.ObjectEditorElement
 
             return CollapsableOptionSelect(header, getter, setter, options);
         }
+
+        public static IObjectEditorElement CollapsableOptionSelect<T>(string header, Func<T> getter, Action<T> setter,
+            params Option<T>[] options)
+        {
+            return CollapsableOptionSelect(header, getter, setter, options as IEnumerable<Option<T>>);
+        }
         #endregion
     }
 }

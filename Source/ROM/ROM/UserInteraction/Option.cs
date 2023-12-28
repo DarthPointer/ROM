@@ -11,5 +11,13 @@ namespace ROM.UserInteraction
         public TOption Value { get; } = value;
 
         public string Name { get; } = name;
+
+
+        public static implicit operator Option<TOption>(TOption value)
+        {
+            string optionName = value?.ToString() ?? "Null";
+
+            return new Option<TOption>(value, optionName);
+        }
     }
 }

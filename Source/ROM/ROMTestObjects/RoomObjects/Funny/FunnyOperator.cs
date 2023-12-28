@@ -102,6 +102,11 @@ namespace ROMTestObjects.RoomObjects.Funny
             yield return Elements.CollapsableOptionSelect(nameof(FunnyObject.BoringEnum),
                 getter: () => obj.BoringEnum, setter: value => obj.BoringEnum = value,
                 funnyEnumBoringOptions);
+
+
+            yield return Elements.CollapsableOptionSelect(nameof(FunnyObject.FunEnum),
+                getter: () => obj.FunEnum, value => obj.FunEnum = value,
+                FunnyEnum.Fun, FunnyEnum.SuperFun);
         }
     }
 }

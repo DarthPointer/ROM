@@ -21,6 +21,7 @@ namespace ROMTestObjects.RoomObjects.Funny
 
         public FunnyEnum AnyEnum { get; set; } = FunnyEnum.Boring;
         public FunnyEnum BoringEnum { get; set;} = FunnyEnum.Boring;
+        public FunnyEnum FunEnum { get; set; } = FunnyEnum.Fun;
     }
 
     public enum FunnyEnum
