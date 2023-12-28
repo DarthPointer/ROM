@@ -46,24 +46,24 @@ namespace ROMTestObjects.RoomObjects.Funny
 
         public override IEnumerable<IObjectEditorElement> GetEditorElements(FunnyObject obj, Room room)
         {
-            //yield return Elements.TextField(nameof(FunnyObject.JustAFloat),
-            //    getter: () => obj.JustAFloat, setter: value => obj.JustAFloat = value);
+            yield return Elements.TextField(nameof(FunnyObject.JustAFloat),
+                getter: () => obj.JustAFloat, setter: value => obj.JustAFloat = value);
 
-            //yield return Elements.TextField(nameof(FunnyObject.JustAnInt),
-            //    getter: () => obj.JustAnInt, setter: value => obj.JustAnInt = value);
+            yield return Elements.TextField(nameof(FunnyObject.JustAnInt),
+                getter: () => obj.JustAnInt, setter: value => obj.JustAnInt = value);
 
-            //yield return Elements.Scrollbar(nameof(FunnyObject.NormFloat),
-            //    getter: () => obj.NormFloat, setter: value => obj.NormFloat = value);
+            yield return Elements.Scrollbar(nameof(FunnyObject.NormFloat),
+                getter: () => obj.NormFloat, setter: value => obj.NormFloat = value);
 
-            //FloatScrollbarConfiguration plusMinusTenFloat = new()
-            //{
-            //    Left = -10,
-            //    Right = 10,
-            //};
+            FloatScrollbarConfiguration plusMinusTenFloat = new()
+            {
+                Left = -10,
+                Right = 10,
+            };
 
-            //yield return Elements.Scrollbar(nameof(FunnyObject.PlusMinusTenFloat),
-            //    getter: () => obj.PlusMinusTenFloat, setter: value => obj.PlusMinusTenFloat = value,
-            //    configuration: plusMinusTenFloat);
+            yield return Elements.Scrollbar(nameof(FunnyObject.PlusMinusTenFloat),
+                getter: () => obj.PlusMinusTenFloat, setter: value => obj.PlusMinusTenFloat = value,
+                configuration: plusMinusTenFloat);
 
             yield return Elements.Scrollbar(nameof(FunnyObject.PlusFiveMinusThreeInt),
                 getter: () => obj.PlusFiveMinusThreeInt, setter: value => obj.PlusFiveMinusThreeInt = value,
@@ -73,17 +73,35 @@ namespace ROMTestObjects.RoomObjects.Funny
                 getter: () => obj.PlusFiveMinusThreeInt2, setter: value => obj.PlusFiveMinusThreeInt2 = value,
                 left: -3, right: 5);
 
-            //List<Option<char>> charOptions = [
-            //    new Option<char>('a', "a"),
-            //    new Option<char>('b', "b"),
-            //    new Option<char>('c', "c"),
-            //    new Option<char>('d', "d"),
-            //    new Option<char>('e', "e")
-            //    ];
+            List<Option<char>> charOptions = [
+                new Option<char>('a', "a"),
+                new Option<char>('b', "b"),
+                new Option<char>('c', "c"),
+                new Option<char>('d', "d"),
+                new Option<char>('e', "e")
+                ];
 
-            //yield return Elements.Scrollbar(nameof(FunnyObject.CursedChar),
-            //    getter: () => obj.CursedChar, setter: value => obj.CursedChar = value,
-            //    charOptions);
+            yield return Elements.Scrollbar(nameof(FunnyObject.CursedChar),
+                getter: () => obj.CursedChar, setter: value => obj.CursedChar = value,
+                charOptions);
+
+
+            yield return Elements.Checkbox(nameof(FunnyObject.AFlag),
+                getter: () => obj.AFlag, setter: value => obj.AFlag = value);
+
+
+            yield return Elements.CollapsableOptionSelect(nameof(FunnyObject.AnyEnum),
+                getter: () => obj.AnyEnum, setter: value => obj.AnyEnum = value);
+
+            List<Option<FunnyEnum>> funnyEnumBoringOptions = [
+                new Option<FunnyEnum>(FunnyEnum.NoFunAllowed, "No fun allowed"),
+                new Option<FunnyEnum>(FunnyEnum.Unfun, "Unfun"),
+                new Option<FunnyEnum>(FunnyEnum.Boring, "Boring")
+            ];
+
+            yield return Elements.CollapsableOptionSelect(nameof(FunnyObject.BoringEnum),
+                getter: () => obj.BoringEnum, setter: value => obj.BoringEnum = value,
+                funnyEnumBoringOptions);
         }
     }
 }

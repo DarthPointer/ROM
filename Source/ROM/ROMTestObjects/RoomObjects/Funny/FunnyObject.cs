@@ -16,5 +16,19 @@ namespace ROMTestObjects.RoomObjects.Funny
         public int PlusFiveMinusThreeInt { get; set; }
         public int PlusFiveMinusThreeInt2 { get; set; }
         public char CursedChar { get; set; }
+
+        public bool AFlag { get; set; }
+
+        public FunnyEnum AnyEnum { get; set; } = FunnyEnum.Boring;
+        public FunnyEnum BoringEnum { get; set;} = FunnyEnum.Boring;
+    }
+
+    public enum FunnyEnum
+    {
+        NoFunAllowed,
+        Unfun,
+        Boring,
+        Fun,
+        SuperFun
     }
 }

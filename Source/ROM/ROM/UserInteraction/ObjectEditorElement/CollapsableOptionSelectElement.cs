@@ -18,6 +18,8 @@ namespace ROM.UserInteraction.ObjectEditorElement
         static CollapsableOptionSelectElement()
         {
             BoldText.fontStyle = FontStyle.Bold;
+            // why store these at different levels??
+            BoldText.normal.textColor = Color.white;
         }
 
         #region Fields
@@ -118,7 +120,6 @@ namespace ROM.UserInteraction.ObjectEditorElement
             Setter = setter;
 
             SavedOption = Target;
-            SetSearchboxTextByTarget();
         }
         #endregion
 
@@ -150,18 +151,9 @@ namespace ROM.UserInteraction.ObjectEditorElement
             return false;
         }
 
-        private void SetSearchboxTextByTarget()
-        {
-            if (TryGetCurrentOption(out Option<T>? opt))
-            {
-                _searchboxText = opt.Name;
-            }
-        }
-
         private void Select(Option<T> option)
         {
             Target = option.Value;
-            _searchboxText = option.Name;
         }
 
         public void Draw()
@@ -243,7 +235,6 @@ namespace ROM.UserInteraction.ObjectEditorElement
         public void ResetChanges()
         {
             Target = SavedOption;
-            SetSearchboxTextByTarget();
         }
 
         public void DrawPostWindow()
