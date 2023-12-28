@@ -22,6 +22,8 @@ namespace ROM.UserInteraction
             get;
             set;
         }
+
+        private List<IIMGUIWindow> WindowsToRemove { get; set; } = [];
         #endregion
 
         #region Constructors
@@ -63,8 +65,13 @@ namespace ROM.UserInteraction
         /// <returns><see langword="true"/> if the window was removed successfully. <see langword="false"/> if the window was not present in the collection and the objects stayed intact.</returns>
         public bool RemoveWindow(IIMGUIWindow window)
         {
+            if (WindowsToRemove.Contains(window))
+                return false;
+
             WindowContainingContainers.Remove(window);
-            return _windows.Remove(window);
+            
+            WindowsToRemove.Add(window);
+            return _windows.Contains(window);
         }
 
         /// <summary>
@@ -85,8 +92,14 @@ namespace ROM.UserInteraction
 
             foreach (IIMGUIWindow window in _windows)
             {
-                window.Display();
+                if (!WindowsToRemove.Contains(window))
+                {
+                    window.Display();
+                }
             }
+
+            _windows.RemoveAll(WindowsToRemove.Contains);
+            WindowsToRemove.Clear();
         }
         #endregion
     }
