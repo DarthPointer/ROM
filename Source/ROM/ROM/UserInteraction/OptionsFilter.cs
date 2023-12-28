@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ROM.UserInteraction
 {
-    internal class OptionsController<TOption>
+    internal class OptionsFilter<TOption>
     {
         #region Fields
         private string _searchFilter = "";
@@ -36,7 +36,7 @@ namespace ROM.UserInteraction
         #endregion
 
         #region Constructors
-        public OptionsController(IEnumerable<Option<TOption>> options)
+        public OptionsFilter(IEnumerable<Option<TOption>> options)
         {
             Options = options.ToList();
             UpdateFilteredOptions();

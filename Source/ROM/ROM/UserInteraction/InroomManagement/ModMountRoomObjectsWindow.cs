@@ -91,7 +91,7 @@ namespace ROM.UserInteraction.InroomManagement
             }
         }
 
-        private OptionsController<ITypeOperator> NewObjectTypeOperatorOptionsController { get; }
+        private OptionsFilter<ITypeOperator> NewObjectTypeOperatorOptionsController { get; }
 
         private string? NewObjectCreationErrorString { get; set; } = null;
 

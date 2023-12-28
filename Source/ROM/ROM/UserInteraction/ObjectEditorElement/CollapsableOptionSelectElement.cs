@@ -81,7 +81,7 @@ namespace ROM.UserInteraction.ObjectEditorElement
             }
         }
 
-        private OptionsController<T> Controller { get; }
+        private OptionsFilter<T> Controller { get; }
 
         private Dictionary<T, Option<T>> OptionsByValues { get; }
         private Dictionary<string, Option<T>> OptionsByName { get; }
@@ -96,7 +96,7 @@ namespace ROM.UserInteraction.ObjectEditorElement
         public CollapsableOptionSelectElement(string header, Func<T> getter, Action<T> setter, IEnumerable<Option<T>> options)
         {
             Header = header;
-            Controller = new OptionsController<T>(options);
+            Controller = new OptionsFilter<T>(options);
 
             OptionsByValues = [];
             OptionsByName = [];
