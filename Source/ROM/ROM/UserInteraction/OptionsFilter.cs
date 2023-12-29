@@ -11,10 +11,27 @@ namespace ROM.UserInteraction
     {
         #region Fields
         private string _searchFilter = "";
+        private List<Option<TOption>> _allOptionsList = [];
         #endregion
 
         #region Properties
-        public IReadOnlyList<Option<TOption>> Options { get; }
+        private List<Option<TOption>> AllOptionsList
+        {
+            get
+            {
+                return _allOptionsList;
+            }
+            set
+            {
+                if (_allOptionsList != value)
+                {
+                    _allOptionsList = value;
+                    UpdateFilteredOptions();
+                }
+            }
+        }
+
+        public IReadOnlyList<Option<TOption>> AllOptions => AllOptionsList;
 
         public string SearchFilter
         {
@@ -36,9 +53,9 @@ namespace ROM.UserInteraction
         #endregion
 
         #region Constructors
-        public OptionsFilter(IEnumerable<Option<TOption>> options)
+        public OptionsFilter(IEnumerable<Option<TOption>>? options = null)
         {
-            Options = options.ToList();
+            SetOptions(options ?? Enumerable.Empty<Option<TOption>>());
             UpdateFilteredOptions();
         }
         #endregion
@@ -49,11 +66,40 @@ namespace ROM.UserInteraction
         {
             if (string.IsNullOrEmpty(SearchFilter))
             {
-                FilteredOptions = Options.ToList();
+                FilteredOptions = AllOptions.ToList();
                 return;
             }
 
-            FilteredOptions = Options.Where(option => option.Name.ToLower().Contains(SearchFilter.ToLower())).ToList();
+            FilteredOptions = AllOptions.Where(option => option.Name.ToLower().Contains(SearchFilter.ToLower())).ToList();
+        }
+
+        public void SetOptions(IEnumerable<Option<TOption>> options)
+        {
+            AllOptionsList = options.ToList();
+        }
+
+        public void AddOption(Option<TOption> option)
+        {
+            AllOptionsList.Add(option);
+            UpdateFilteredOptions();
+        }
+
+        public bool RemoveOption(Option<TOption> option)
+        {
+            bool result = AllOptionsList.Remove(option);
+            UpdateFilteredOptions();
+
+            return result;
+        }
+
+        public int RemoveOption(TOption option)
+        {
+            int result = AllOptionsList.RemoveAll(opt => Equals(opt, option));
+
+            if (result != 0)
+                UpdateFilteredOptions();
+
+            return result;
         }
         #endregion
     }

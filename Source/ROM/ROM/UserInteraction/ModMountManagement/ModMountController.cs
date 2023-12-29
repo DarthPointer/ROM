@@ -104,7 +104,7 @@ namespace ROM.UserInteraction.ModMountManagement
             }
         }
         
-        public void AddObject(string newObjectFilePath, ITypeOperator typeOperator)
+        public ObjectData AddObject(string newObjectFilePath, ITypeOperator typeOperator)
         {
             AssertContextRoomNotNull();
 
@@ -194,6 +194,8 @@ namespace ROM.UserInteraction.ModMountManagement
                 ROMPlugin.Logger?.LogError(mountSavingErrorString);
                 throw new Exception(mountSavingErrorString, ex);
             }
+
+            return newObjectData;
         }
 
         public void DeleteObject(ObjectData objectData)

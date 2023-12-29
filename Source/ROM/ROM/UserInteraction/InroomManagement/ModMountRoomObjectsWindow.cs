@@ -47,9 +47,7 @@ namespace ROM.UserInteraction.InroomManagement
         }
 
         private string NewObjectFilePathWithExtension => NewObjectFilePath + ".json";
-
         private bool NewObjectFilePathIsValid { get; set; } = true;
-
         private string NewObjectFilePathErrorString { get; set; } = "";
 
         private string NewObjectTypeFilterText
@@ -92,7 +90,6 @@ namespace ROM.UserInteraction.InroomManagement
         }
 
         private OptionsFilter<ITypeOperator> NewObjectTypeOperatorOptionsController { get; }
-
         private string? NewObjectCreationErrorString { get; set; } = null;
 
         private ObjectData? ConfirmCloseWindowUnsaved { get; set; } = null;
@@ -101,6 +98,9 @@ namespace ROM.UserInteraction.InroomManagement
         /// Delete the <see cref="ConfirmDeletingObject"/>?
         /// </summary>
         private bool DeleteObjectConfirmed { get; set; } = false;
+
+        private OptionsFilter<ObjectData> ExistingObjectsFilter { get; } = new();
+        private IReadOnlyList<ObjectData>? PreviousExistingObjectsList { get; set; }
 
         private string? ExistingObjectListError { get; set; } = null;
         #endregion
@@ -119,25 +119,35 @@ namespace ROM.UserInteraction.InroomManagement
         #region Methods
         protected override void WindowFunction(int id)
         {
-            GUILayout.BeginVertical();
+            if (ModMountController != null)
+            {
+                if (ModMountController.CurrentRoomObjectsList != PreviousExistingObjectsList)
+                {
+                    ExistingObjectsFilter.SetOptions(ModMountController.CurrentRoomObjectsList.Select(CreateObjectDataOption));
+                }
 
-            _scrollState = GUILayout.BeginScrollView(_scrollState);
+                GUILayout.BeginVertical();
 
-            GUILayout.BeginVertical();
+                _scrollState = GUILayout.BeginScrollView(_scrollState);
 
-            ListExistingRoomObjects();
+                GUILayout.BeginVertical();
 
-            NewObjectCreation();
+                ListExistingRoomObjects();
 
-            GUILayout.EndVertical();
+                NewObjectCreation();
 
-            GUILayout.EndScrollView();
+                GUILayout.EndVertical();
 
-            GUILayout.EndVertical();
+                GUILayout.EndScrollView();
+
+                GUILayout.EndVertical();
+            }
         }
 
         private void ListExistingRoomObjects()
         {
+            ExistingObjectsFilter.SearchFilter = GUILayout.TextField(ExistingObjectsFilter.SearchFilter);
+
             if (ModMountController?.ContextRoom == null)
             {
                 GUILayout.Label("No room found.");
@@ -150,7 +160,7 @@ namespace ROM.UserInteraction.InroomManagement
                 return;
             }
 
-            foreach (ObjectData obj in ModMountController.CurrentRoomObjectsList)
+            foreach (Option<ObjectData> obj in ExistingObjectsFilter.FilteredOptions)
             {
                 ListExistingRoomObject(obj);
             }
@@ -166,7 +176,7 @@ namespace ROM.UserInteraction.InroomManagement
             }
         }
 
-        private void ListExistingRoomObject(ObjectData objectData)
+        private void ListExistingRoomObject(Option<ObjectData> objectData)
         {
             if (ConfirmDeletingObject != null && ModMountController?.ContextRoom?.abstractRoom.name != ConfirmDeletingObject.RoomId)
             {
@@ -175,19 +185,19 @@ namespace ROM.UserInteraction.InroomManagement
 
             GUILayout.BeginHorizontal();
 
-            GUILayout.Label($"{objectData.FilePath}: {objectData.TypeId}");
+            GUILayout.Label(objectData.Name);
             GUILayout.FlexibleSpace();
-            DrawToggleObjectWindowButton(objectData);
-            DrawDeleteObjectButton(objectData);
+            DrawToggleObjectWindowButton(objectData.Value);
+            DrawDeleteObjectButton(objectData.Value);
 
             GUILayout.EndHorizontal();
 
-            if (ConfirmDeletingObject == objectData)
+            if (ConfirmDeletingObject == objectData.Value)
             {
-                GUILayout.Label($"Click the cross button again to delete {objectData.FilePath}.");
+                GUILayout.Label($"Click the cross button again to delete {objectData.Value.FilePath}.");
             }
 
-            if (ConfirmCloseWindowUnsaved == objectData)
+            if (ConfirmCloseWindowUnsaved == objectData.Value)
             {
                 GUILayout.Label($"Click the minus button again to close the window with unsaved changes.");
             }
@@ -271,6 +281,7 @@ namespace ROM.UserInteraction.InroomManagement
             try
             {
                 ModMountController.DeleteObject(ConfirmDeletingObject);
+                ExistingObjectsFilter.RemoveOption(ConfirmDeletingObject);
             }
             catch (Exception ex)
             {
@@ -422,7 +433,8 @@ namespace ROM.UserInteraction.InroomManagement
 
             try
             {
-                ModMountController.AddObject(NewObjectFilePathWithExtension, NewObjectTypeOperator);
+                ObjectData newObjectData = ModMountController.AddObject(NewObjectFilePathWithExtension, NewObjectTypeOperator);
+                ExistingObjectsFilter.AddOption(CreateObjectDataOption(newObjectData));
             }
             catch (Exception ex)
             {
@@ -433,6 +445,11 @@ namespace ROM.UserInteraction.InroomManagement
         private ITypeOperator? GetTypeOperatorByFilterText()
         {
             return NewObjectTypeOperatorOptionsController.FilteredOptions.FirstOrDefault(opt => opt.Value.TypeId == NewObjectTypeFilterText)?.Value;
+        }
+
+        private static Option<ObjectData> CreateObjectDataOption(ObjectData objectData)
+        {
+            return new Option<ObjectData>(objectData, $"{objectData.FilePath}: {objectData.TypeId}");
         }
 
         public void Close()
