@@ -1,4 +1,5 @@
 ﻿using ROM.UserInteraction.InroomManagement;
+using ROM.UserInteraction.ObjectEditorElement.LevelPosition;
 using ROM.UserInteraction.ObjectEditorElement.Scrollbar;
 using ROM.UserInteraction.ObjectEditorElement.TextField;
 using System;
@@ -6,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 using UnityEngine.Experimental.GlobalIllumination;
 
 namespace ROM.UserInteraction.ObjectEditorElement
@@ -92,6 +94,13 @@ namespace ROM.UserInteraction.ObjectEditorElement
             params Option<T>[] options)
         {
             return CollapsableOptionSelect(header, getter, setter, options as IEnumerable<Option<T>>);
+        }
+        #endregion
+
+        #region Point
+        public static IObjectEditorElement Point(string displayName, Func<Vector2> getter, Action<Vector2> setter)
+        {
+            return new PointElement(displayName, getter, setter);
         }
         #endregion
     }

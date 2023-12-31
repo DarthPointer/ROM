@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace ROMTestObjects.RoomObjects.Funny
 {
@@ -22,6 +23,8 @@ namespace ROMTestObjects.RoomObjects.Funny
         public FunnyEnum AnyEnum { get; set; } = FunnyEnum.Boring;
         public FunnyEnum BoringEnum { get; set;} = FunnyEnum.Boring;
         public FunnyEnum FunEnum { get; set; } = FunnyEnum.Fun;
+
+        public Vector2 Point { get; set; } = Vector2.up + Vector2.right;
     }
 
     public enum FunnyEnum
