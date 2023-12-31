@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ROM.UserInteraction.ObjectEditorElement.TextField
 {
-    public abstract class TextFieldConfiguration<T>(
+    public class TextFieldConfiguration<T>(
         Func<T, string> formatter, TryParseValue<T> parser, Func<T, bool> valueValidator, Func<T, T>? valueRestrictor)
         where T : notnull
     {
