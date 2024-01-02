@@ -98,9 +98,10 @@ namespace ROM.UserInteraction.ObjectEditorElement
         #endregion
 
         #region Point
-        public static IObjectEditorElement Point(string displayName, Func<Vector2> getter, Action<Vector2> setter)
+        public static IObjectEditorElement Point(string displayName, string displayCode, Func<Vector2> getter, Action<Vector2> setter,
+            bool displayTogglePointButton = true)
         {
-            return new PointElement(displayName, getter, setter);
+            return new PointElement(displayName, displayCode, getter, setter, displayTogglePointButton);
         }
         #endregion
     }

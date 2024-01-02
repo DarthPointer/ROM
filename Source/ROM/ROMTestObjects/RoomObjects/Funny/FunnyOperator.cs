@@ -108,7 +108,7 @@ namespace ROMTestObjects.RoomObjects.Funny
                 getter: () => obj.FunEnum, setter: value => obj.FunEnum = value,
                 FunnyEnum.Fun, FunnyEnum.SuperFun);
 
-            yield return Elements.Point(nameof(FunnyObject.Point),
+            yield return Elements.Point(nameof(FunnyObject.Point), "p",
                 getter: () => obj.Point, setter: value => obj.Point = value);
         }
     }

@@ -19,7 +19,12 @@ namespace ROM.UserInteraction.ObjectEditorElement.LevelPosition
         #endregion
 
         #region Properties
-        private string DisplayName { get; }
+        public string DisplayName { get; set; }
+        public string DisplayCode
+        {
+            get => DraggablePointButton.DisplayCode;
+            set => DraggablePointButton.DisplayCode = value;
+        }
 
         private Func<Vector2> Getter { get; }
         private Action<Vector2> Setter { get; }
@@ -81,12 +86,21 @@ namespace ROM.UserInteraction.ObjectEditorElement.LevelPosition
 
         private string XInputElementId { get; }
         private string YInputElementId { get; }
+
+        private DraggablePointButton DraggablePointButton { get; }
+
+        private bool DisplayTogglePointButton { get; }
+        public bool DrawPoint { get; set; }
         #endregion
 
         #region Constructors
-        public PointElement(string displayName, Func<Vector2> getter, Action<Vector2> setter)
+        public PointElement(string displayName, string displayCode,
+            Func<Vector2> getter, Action<Vector2> setter, bool displayTogglePointButton)
         {
+            DraggablePointButton = new();
+
             DisplayName = displayName;
+            DisplayCode = displayCode;
 
             Getter = getter;
             Setter = setter;
@@ -95,6 +109,8 @@ namespace ROM.UserInteraction.ObjectEditorElement.LevelPosition
 
             XInputElementId = GetHashCode().ToString() + ".X";
             YInputElementId = GetHashCode().ToString() + ".Y";
+
+            DisplayTogglePointButton = displayTogglePointButton;
         }
         #endregion
 
@@ -134,7 +150,7 @@ namespace ROM.UserInteraction.ObjectEditorElement.LevelPosition
         public void Draw()
         {
             CommonIMGUIUtils.HorizontalLine();
-            GUILayout.Label(DisplayName);
+            GUILayout.Label($"{DisplayName} ({DisplayCode})");
 
             GUILayout.BeginHorizontal();
 
@@ -159,6 +175,14 @@ namespace ROM.UserInteraction.ObjectEditorElement.LevelPosition
             GUI.SetNextControlName(YInputElementId);
             YText = GUILayout.TextField(YText, GUILayout.Width(100));
             GUILayout.FlexibleSpace();
+
+            if (DisplayTogglePointButton)
+            {
+                if (GUILayout.Button(DrawPoint ? "-" : "+"))
+                {
+                    DrawPoint = !DrawPoint;
+                }
+            }
 
             GUILayout.EndHorizontal();
 
@@ -189,7 +213,13 @@ namespace ROM.UserInteraction.ObjectEditorElement.LevelPosition
         }
 
         public void DrawPostWindow()
-        { }
+        {
+            if (DrawPoint)
+            {
+                DraggablePointButton.Point = Target;
+                DraggablePointButton.Draw();
+            }
+        }
         #endregion
     }
 }
