@@ -1,4 +1,5 @@
-﻿using ROM.ObjectDataStorage;
+﻿using Newtonsoft.Json.Linq;
+using ROM.ObjectDataStorage;
 using ROM.RoomObjectService;
 using ROM.UserInteraction.ModMountManagement;
 using System;
@@ -133,7 +134,8 @@ namespace ROM.UserInteraction.InroomManagement
         public void Save()
         {
             ITypeOperator typeOperator = ObjectData.GetTypeOperator();
-            typeOperator.Save(TargetObject);
+            ObjectData.DataJson = typeOperator.Save(TargetObject);
+            ObjectData.Save();
 
             foreach (IObjectEditorElement editorElement in EditorElements)
             {
