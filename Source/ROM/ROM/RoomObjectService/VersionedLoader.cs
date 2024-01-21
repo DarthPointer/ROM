@@ -8,10 +8,20 @@ using static ROM.RoomObjectService.TypeOperatorUtils;
 
 namespace ROM.RoomObjectService
 {
+    /// <summary>
+    /// A class to contain a list loaders and use them according to the <see cref="VersionedJson.VersionId"/> in the received JSON trees.
+    /// </summary>
+    /// <typeparam name="TOBJ">The type of the objects loaded from JSON trees.</typeparam>
     public class VersionedLoader<TOBJ>
             where TOBJ : notnull
     {
+        /// <summary>
+        /// The load call to use if there is no <see cref="LoadVersion{TOBJ}"/> found with a matching <see cref="LoadVersion{TOBJ}.VersionId"/>.
+        /// </summary>
         public Func<JToken, Room, TOBJ>? DefaultLoader { get; }
+        /// <summary>
+        /// The dictionary of supported versions.
+        /// </summary>
         public Dictionary<string, Func<JToken, Room, TOBJ>> SupportedVersionLoaders { get; }
 
         public VersionedLoader(Func<JToken, Room, TOBJ>? defaultLoader, IEnumerable<LoadVersion<TOBJ>> supportedVersions)

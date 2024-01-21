@@ -10,6 +10,10 @@ using UnityEngine;
 
 namespace ROM.UserInteraction.ObjectEditorElement.TextField
 {
+    /// <summary>
+    /// The textfield element.
+    /// </summary>
+    /// <typeparam name="T">The type of edited value.</typeparam>
     public class TextFieldElement<T> : IObjectEditorElement
     where T : notnull
     {
@@ -64,6 +68,13 @@ namespace ROM.UserInteraction.ObjectEditorElement.TextField
 
         private Func<T, T>? ValueRestrictor { get; }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="displayName">Header of the element.</param>
+        /// <param name="getter">The function to retrieve the current value from the object.</param>
+        /// <param name="setter">The action to set the value.</param>
+        /// <param name="configuration">The configuration to set properties from.</param>
         public TextFieldElement(string displayName, Func<T> getter, Action<T> setter,
             TextFieldConfiguration<T> configuration)
         {

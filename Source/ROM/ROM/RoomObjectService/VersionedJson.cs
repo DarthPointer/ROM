@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 
 namespace ROM.RoomObjectService
 {
+    /// <summary>
+    /// A JSON tree wrap with a VersionId tag to coordinate saving and loading with crossversion compatibility.
+    /// </summary>
     [JsonObject(MemberSerialization = MemberSerialization.OptOut)]
     public class VersionedJson
     {

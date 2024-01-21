@@ -8,6 +8,9 @@ using UnityEngine;
 
 namespace ROM.UserInteraction.ObjectEditorElement
 {
+    /// <summary>
+    /// A simple checkbox to toggle a bool value.
+    /// </summary>
     public class CheckboxElement : IObjectEditorElement
     {
         private Func<bool> Getter { get; }
@@ -31,6 +34,12 @@ namespace ROM.UserInteraction.ObjectEditorElement
 
         public bool HasChanges => SavedValue != Target;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="displayName">Header of the element.</param>
+        /// <param name="getter">The function to retrieve the current value from the object.</param>
+        /// <param name="setter">The action to set the value.</param>
         public CheckboxElement(string displayName, Func<bool> getter, Action<bool> setter)
         {
             Getter = getter;

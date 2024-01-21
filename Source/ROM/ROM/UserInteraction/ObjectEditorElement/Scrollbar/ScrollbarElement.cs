@@ -9,6 +9,10 @@ using UnityEngine;
 
 namespace ROM.UserInteraction.ObjectEditorElement.Scrollbar
 {
+    /// <summary>
+    /// An abstract base for scrollbars.
+    /// </summary>
+    /// <typeparam name="T">The type of edited value.</typeparam>
     public abstract class AbstractScrollbarElement<T> : IObjectEditorElement
     {
         #region Properties
@@ -38,6 +42,12 @@ namespace ROM.UserInteraction.ObjectEditorElement.Scrollbar
         #endregion
 
         #region Constructors
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="displayName">Header of the element.</param>
+        /// <param name="getter">The function to retrieve the current value from the object.</param>
+        /// <param name="setter">The action to set the value.</param>
         public AbstractScrollbarElement(string displayName, Func<T> getter, Action<T> setter)
         {
             DisplayName = displayName;
@@ -50,9 +60,24 @@ namespace ROM.UserInteraction.ObjectEditorElement.Scrollbar
         #endregion
 
         #region Methods
+        /// <summary>
+        /// Converts scroll position to desired value.
+        /// </summary>
+        /// <param name="pos"></param>
+        /// <returns></returns>
         protected abstract T PosToValue(float pos);
+        /// <summary>
+        /// Converts value to scroll coordinate.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
         protected abstract float ValueToPos(T value);
 
+        /// <summary>
+        /// Formats a string to display value.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
         protected abstract string Formatter(T value);
 
         public void Draw()
@@ -96,6 +121,10 @@ namespace ROM.UserInteraction.ObjectEditorElement.Scrollbar
         #endregion
     }
 
+    /// <summary>
+    /// A basic implementation of scrollbar that gets its calls to use as delegates in ctor args.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public class ScrollbarElement<T> : AbstractScrollbarElement<T>
     {
         #region Properties
@@ -109,6 +138,17 @@ namespace ROM.UserInteraction.ObjectEditorElement.Scrollbar
         #endregion
 
         #region Constructors
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="displayName">Header of the element.</param>
+        /// <param name="getter">The function to retrieve the current value from the object.</param>
+        /// <param name="setter">The action to set the value.</param>
+        /// <param name="left">The leftmost coordinate of the scrollbar.</param>
+        /// <param name="right">The rightmost coordinate of the scrollbar.</param>
+        /// <param name="posToValue">Converts scroll position to desired value.</param>
+        /// <param name="valueToPos">Converts value to scroll coordinate.</param>
+        /// <param name="formatter">Formats a string to display value.</param>
         public ScrollbarElement(string displayName, Func<T> getter, Action<T> setter,
             float left, float right, Func<float, T> posToValue, Func<T, float> valueToPos, Func<T, string> formatter) :
             base(displayName, getter, setter)
@@ -141,6 +181,10 @@ namespace ROM.UserInteraction.ObjectEditorElement.Scrollbar
         #endregion
     }
 
+    /// <summary>
+    /// A scrollbar implementation that selects an option from a list.
+    /// </summary>
+    /// <typeparam name="T">The options type.</typeparam>
     public class OptionsScrollbarElement<T> : AbstractScrollbarElement<T>
     {
         protected override float Left => 0;
@@ -149,6 +193,13 @@ namespace ROM.UserInteraction.ObjectEditorElement.Scrollbar
         private IReadOnlyList<T> Options { get; }
         private Dictionary<T, string> OptionNames { get; }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="displayName">Header of the element.</param>
+        /// <param name="getter">The function to retrieve the current value from the object.</param>
+        /// <param name="setter">The action to set the value.</param>
+        /// <param name="options">The options to select from.</param>
         public OptionsScrollbarElement(string displayName, Func<T> getter, Action<T> setter,
             IEnumerable<Option<T>> options) :
             base(displayName, getter, setter)

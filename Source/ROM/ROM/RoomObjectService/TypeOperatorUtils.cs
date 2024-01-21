@@ -9,15 +9,18 @@ using System.Threading.Tasks;
 
 namespace ROM.RoomObjectService
 {
+    /// <summary>
+    /// A set of generic shortcuts for object handling.
+    /// </summary>
     public static class TypeOperatorUtils
     {
-        public class LoadVersion<TOBJ>(string versionId, Func<JToken, Room, TOBJ> loadCall)
-            where TOBJ : notnull
-        {
-            public string VersionId { get; } = versionId;
-            public Func<JToken, Room, TOBJ> LoadCall = loadCall;
-        }
-
+        /// <summary>
+        /// A shortcut to create a <see cref="VersionedLoader{TOBJ}"/>.
+        /// </summary>
+        /// <typeparam name="TOBJ"></typeparam>
+        /// <param name="defaultLoad"></param>
+        /// <param name="supportedVersions"></param>
+        /// <returns></returns>
         public static VersionedLoader<TOBJ> CreateVersionedLoader<TOBJ>
             (Func<JToken, Room, TOBJ>? defaultLoad = null, IEnumerable<LoadVersion<TOBJ>> supportedVersions = null!)
             where TOBJ : notnull
@@ -25,6 +28,13 @@ namespace ROM.RoomObjectService
              return new VersionedLoader<TOBJ>(defaultLoad, supportedVersions ?? Enumerable.Empty<LoadVersion<TOBJ>>());
         }
 
+        /// <summary>
+        /// A shortcut to create a <see cref="VersionedLoader{TOBJ}"/>.
+        /// </summary>
+        /// <typeparam name="TOBJ"></typeparam>
+        /// <param name="defaultLoad"></param>
+        /// <param name="supportedVersions"></param>
+        /// <returns></returns>
         public static VersionedLoader<TOBJ> CreateVersionedLoader<TOBJ>
             (Func<JToken, Room, TOBJ>? defaultLoad = null, params LoadVersion<TOBJ>[] supportedVersions)
             where TOBJ : notnull
@@ -32,6 +42,14 @@ namespace ROM.RoomObjectService
             return CreateVersionedLoader(defaultLoad, supportedVersions as IEnumerable<LoadVersion<TOBJ>>);
         }
 
+        /// <summary>
+        /// The default conversion of JSON tree into an object.
+        /// </summary>
+        /// <typeparam name="TOBJ">The type of the object.</typeparam>
+        /// <param name="data">The JSON tree.</param>
+        /// <param name="room">The object's room.</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
         public static TOBJ TrivialLoad<TOBJ>(JToken data, Room room)
             where TOBJ : notnull, new()
         {
@@ -51,17 +69,13 @@ namespace ROM.RoomObjectService
             throw new ArgumentException(notParsedAsObjectError, nameof(data));
         }
 
-        public static void AddUADToRoom(UpdatableAndDeletable uad, Room room)
-        {
-            room.AddObject(uad);
-        }
-
-        public static void RemoveUADFromRoom(UpdatableAndDeletable uad, Room room)
-        {
-            room.RemoveObject(uad);
-            uad.Destroy();
-        }
-
+        /// <summary>
+        /// The default conversion of an object to JSON tree. Does not serialize fields and properties declared in
+        /// <see cref="UpdatableAndDeletable"/> to prevent dependency loops. Using this method requires
+        /// setting correct serialization attributes to avoid reference loops and other serialization errors.
+        /// </summary>
+        /// <param name="obj">The object to save into a JSON tree.</param>
+        /// <returns>A JSON tree with object's data.</returns>
         public static JToken TrivialSave(object obj)
         {
             try
@@ -82,6 +96,12 @@ namespace ROM.RoomObjectService
             }
         }
 
+        /// <summary>
+        /// A wrap to use <see cref="TrivialSave(object)"/> and return a versioned JSON.
+        /// </summary>
+        /// <typeparam name="TOBJ">The object to save into a JSON.</typeparam>
+        /// <param name="versionId">A JSON tree of <see cref="VersionedJson"/>.</param>
+        /// <returns></returns>
         public static Func<TOBJ, JToken> GetTrivialVersionedSaveCall<TOBJ>(string versionId)
             where TOBJ : notnull
         {

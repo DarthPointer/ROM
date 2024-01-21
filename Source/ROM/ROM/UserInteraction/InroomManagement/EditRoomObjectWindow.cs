@@ -11,12 +11,12 @@ using UnityEngine;
 
 namespace ROM.UserInteraction.InroomManagement
 {
-    public interface IEditRoomObjectWindow
-    {
+    //public interface IEditRoomObjectWindow
+    //{
         
-    }
+    //}
 
-    internal class EditRoomObjectWindow : ResizeableAndDraggableIMGUIWindow, IEditRoomObjectWindow
+    internal class EditRoomObjectWindow : ResizeableAndDraggableIMGUIWindow//, IEditRoomObjectWindow
     {
         public const string CONFIRM_CLOSE_CHANGES_UNSAVED = "Unsaved changes, save them or click again to close anyway.";
 

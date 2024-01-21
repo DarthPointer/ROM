@@ -11,6 +11,10 @@ using UnityEngine;
 
 namespace ROM.UserInteraction.ObjectEditorElement
 {
+    /// <summary>
+    /// An element to select from options via a collapsable scroll view with a searchbox for name-based filtering.
+    /// </summary>
+    /// <typeparam name="T">The type of options.</typeparam>
     public class CollapsableOptionSelectElement<T> : IObjectEditorElement
     {
         private readonly static GUIStyle BoldText = new();
@@ -93,6 +97,13 @@ namespace ROM.UserInteraction.ObjectEditorElement
         #endregion
 
         #region Constructors
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="displayName">Header of the element.</param>
+        /// <param name="getter">The function to retrieve the current value from the object.</param>
+        /// <param name="setter">The action to set the value.</param>
+        /// <param name="options">The list of options to select from.</param>
         public CollapsableOptionSelectElement(string header, Func<T> getter, Action<T> setter, IEnumerable<Option<T>> options)
         {
             Header = header;
