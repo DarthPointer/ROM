@@ -1,7 +1,7 @@
 {
     "id": "DarthPointer.ROM",
     "name": "Room Object Manager",
-    "version": "0.0.0",
+    "version": "0.0.1",
     "target_game_version": "v1.9.07b",
     "authors": "Darth Pointer",
     "description": "",
