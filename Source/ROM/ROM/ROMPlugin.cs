@@ -31,7 +31,6 @@ namespace ROM
 
         private ROMOptionInterface? _optionInterface;
         private IMGUIWindowsContainer? _windowsContainer;
-        private GameObject? _imguiWindowsContainerGO;
 
         #endregion
 
@@ -50,9 +49,10 @@ namespace ROM
                 On.Room.Loaded += Room_Loaded;
                 _haveHooked = true;
             }
-            _imguiWindowsContainerGO = new GameObject("ROM IMGUI Windows Container", typeof(IMGUIWindowsContainer));
-            _windowsContainer = _imguiWindowsContainerGO.GetComponent<IMGUIWindowsContainer>();
+            _windowsContainer = gameObject.AddComponent<IMGUIWindowsContainer>();
             _windowsContainer.DisplayWindows = false;
+
+            Logger.LogInfo("ROM UI windows container created");
         }
 
         public void Update()

@@ -82,11 +82,7 @@ namespace ROM.UserInteraction
             _windows.Clear();
         }
 
-        /// <summary>
-        /// Unity call the container uses to display the windows it manages. Don't call this manually.
-        /// </summary>
-        [Obsolete(message: "don't call this manually, Unity should call it on its own when needed.", error: true)]
-        public void OnGUI()
+        private void OnGUI()
         {
             if (!DisplayWindows) return;
 
