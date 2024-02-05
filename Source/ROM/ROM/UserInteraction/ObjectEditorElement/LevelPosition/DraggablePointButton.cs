@@ -14,28 +14,31 @@ namespace ROM.UserInteraction.ObjectEditorElement.LevelPosition
         #region Statics
         static GUIStyle ButtonStyle { get; } = new();
         static GUIStyle BlackTextStyle { get; } = new();
-
-        static DraggablePointButton()
+        public DraggablePointButton()
         {
-            Texture2D buttonTexture = CommonIMGUIUtils.GetSingleColorTexture(16, 16, Color.white with { a = 0.2f });
-
-            for (int x = 0; x < 16; x++)
+            if(ButtonStyle.normal.background == null)
             {
-                buttonTexture.SetPixel(x, 0, Color.black);
-                buttonTexture.SetPixel(x, 15, Color.black);
+                Texture2D buttonTexture = CommonIMGUIUtils.GetSingleColorTexture(16, 16, Color.white with { a = 0.2f });
+
+                for (int x = 0; x < 16; x++)
+                {
+                    buttonTexture.SetPixel(x, 0, Color.black);
+                    buttonTexture.SetPixel(x, 15, Color.black);
+                }
+
+                for (int y = 1; y < 15; y++)
+                {
+                    buttonTexture.SetPixel(0, y, Color.black);
+                    buttonTexture.SetPixel(15, y, Color.black);
+                }
+
+
+                ButtonStyle.normal.background = buttonTexture;
+                ButtonStyle.active.background = buttonTexture;
+
+                BlackTextStyle.normal.textColor = Color.black;
             }
-
-            for (int y = 1; y < 15; y++)
-            {
-                buttonTexture.SetPixel(0, y, Color.black);
-                buttonTexture.SetPixel(15, y, Color.black);
-            }
-
-            buttonTexture.Apply();
-            ButtonStyle.normal.background = buttonTexture;
-            ButtonStyle.active.background = buttonTexture;
-
-            BlackTextStyle.normal.textColor = Color.black;
+            ButtonStyle.normal.background.Apply();   
         }
         #endregion
 
