@@ -1,0 +1,24 @@
+{
+  "RoomId": "SU_S01",
+  "TypeId": "FunnyObject",
+  "DataJson": {
+    "VersionId": "0.0.0",
+    "Data": {
+      "JustAFloat": 0.0,
+      "JustAnInt": 0,
+      "NormFloat": 0.0,
+      "PlusMinusTenFloat": 0.0,
+      "PlusFiveMinusThreeInt": 0,
+      "PlusFiveMinusThreeInt2": 0,
+      "CursedChar": "a",
+      "AFlag": false,
+      "AnyEnum": 2,
+      "BoringEnum": 2,
+      "FunEnum": 3,
+      "SerializablePoint": {
+        "x": 500.0,
+        "y": 500.0
+      }
+    }
+  }
+}
