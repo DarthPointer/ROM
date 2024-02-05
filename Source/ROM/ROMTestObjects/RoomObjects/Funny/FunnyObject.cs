@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -24,7 +25,23 @@ namespace ROMTestObjects.RoomObjects.Funny
         public FunnyEnum BoringEnum { get; set;} = FunnyEnum.Boring;
         public FunnyEnum FunEnum { get; set; } = FunnyEnum.Fun;
 
+        [JsonIgnore]
         public Vector2 Point { get; set; } = Vector2.up + Vector2.right;
+        public SerializableVector2 SerializablePoint
+        {
+            get
+            {
+                return new() { x = Point.x, y = Point.y };
+            }
+            set
+            {
+                Point = new Vector2(value.x, value.y);
+            }
+        }
+    }
+    public struct SerializableVector2
+    {
+        public float x, y;
     }
 
     public enum FunnyEnum
