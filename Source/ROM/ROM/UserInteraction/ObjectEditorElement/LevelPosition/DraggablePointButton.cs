@@ -16,7 +16,7 @@ namespace ROM.UserInteraction.ObjectEditorElement.LevelPosition
         static GUIStyle BlackTextStyle { get; } = new();
         public DraggablePointButton()
         {
-            if(ButtonStyle.normal.background == null)
+            if(ButtonStyle.normal?.background == null)
             {
                 Texture2D buttonTexture = CommonIMGUIUtils.GetSingleColorTexture(16, 16, Color.white with { a = 0.2f });
 
@@ -67,10 +67,6 @@ namespace ROM.UserInteraction.ObjectEditorElement.LevelPosition
         #region Methods
         public void Draw()
         {
-            if (GUI.Button(ButtonRect, "", ButtonStyle))
-            {
-            }
-
             GUILayout.BeginArea(ButtonRect);
 
             GUILayout.BeginVertical();
@@ -88,6 +84,7 @@ namespace ROM.UserInteraction.ObjectEditorElement.LevelPosition
             GUILayout.EndVertical();
             
             GUILayout.EndArea();
+            Point = ButtonDragger.GetNewVectorByDragButton(this.GetHashCode(), Point, () => GUI.RepeatButton(ButtonRect, "", ButtonStyle));
         }
         #endregion
     }

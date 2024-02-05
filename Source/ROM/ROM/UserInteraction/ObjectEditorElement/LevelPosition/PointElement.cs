@@ -218,6 +218,7 @@ namespace ROM.UserInteraction.ObjectEditorElement.LevelPosition
             {
                 DraggablePointButton.Point = Target;
                 DraggablePointButton.Draw();
+                Target = DraggablePointButton.Point;
             }
         }
         #endregion
