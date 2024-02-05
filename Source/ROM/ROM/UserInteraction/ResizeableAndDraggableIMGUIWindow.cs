@@ -33,7 +33,7 @@ namespace ROM.UserInteraction
 
             WindowFunction(id);
 
-            _windowSize = WindowResizer.GetNewSizeByDragButton(this, _windowSize);
+            _windowSize = ButtonDragger.GetNewVectorByDragButton(this.GetHashCode(), _windowSize, () => GUILayout.RepeatButton("~"));
             // I have no clue what the exact order and sync are for OnGUI and registered Window calls is, so I will save it always.
             _windowRect.size = _windowSize;
             GUILayout.EndVertical();
