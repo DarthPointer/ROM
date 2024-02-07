@@ -41,11 +41,13 @@ namespace ROM.UserInteraction.InroomManagement
         private string? ConfirmCloseUnsavedString { get; set; } = null;
         private bool TriedToCloseUnsaved { get; set; } = false;
         private string? SaveErrorString { get; set; } = null;
+
+        private RoomCamera? RoomCamera { get; }
         #endregion
 
         #region Constructors
         public EditRoomObjectWindow(ModMountController owningController,
-            ObjectData objectData, object targetObject, IEnumerable<IObjectEditorElement> editorElements)
+            ObjectData objectData, object targetObject, IEnumerable<IObjectEditorElement> editorElements, RoomCamera? roomCamera)
         {
             WindowHeader = objectData.FilePath;
 
@@ -56,6 +58,8 @@ namespace ROM.UserInteraction.InroomManagement
             ObjectData = objectData;
             TargetObject = targetObject;
             EditorElements = editorElements.ToList();
+
+            RoomCamera = roomCamera;
         }
         #endregion
 
@@ -71,7 +75,7 @@ namespace ROM.UserInteraction.InroomManagement
 
             foreach(IObjectEditorElement element in EditorElements)
             {
-                element.Draw();
+                element.Draw(RoomCamera);
             }
 
             GUILayout.EndScrollView();
@@ -184,7 +188,7 @@ namespace ROM.UserInteraction.InroomManagement
         {
             foreach (IObjectEditorElement objectEditorElement in EditorElements)
             {
-                objectEditorElement.DrawPostWindow();
+                objectEditorElement.DrawPostWindow(RoomCamera);
             }
         }
         #endregion

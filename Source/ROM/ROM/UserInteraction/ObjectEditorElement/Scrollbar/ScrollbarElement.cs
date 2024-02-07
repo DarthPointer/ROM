@@ -80,7 +80,7 @@ namespace ROM.UserInteraction.ObjectEditorElement.Scrollbar
         /// <returns></returns>
         protected abstract string Formatter(T value);
 
-        public void Draw()
+        public void Draw(RoomCamera? roomCamera)
         {
             float left, right;
 
@@ -116,7 +116,7 @@ namespace ROM.UserInteraction.ObjectEditorElement.Scrollbar
             Target = SavedValue;
         }
 
-        public void DrawPostWindow()
+        public void DrawPostWindow(RoomCamera? roomCamera)
         { }
         #endregion
     }

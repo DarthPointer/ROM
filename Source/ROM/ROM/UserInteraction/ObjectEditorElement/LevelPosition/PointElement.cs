@@ -147,7 +147,7 @@ namespace ROM.UserInteraction.ObjectEditorElement.LevelPosition
             ParseYError = true;
         }
 
-        public void Draw()
+        public void Draw(RoomCamera? roomCamera)
         {
             CommonIMGUIUtils.HorizontalLine();
             GUILayout.Label($"{DisplayName} ({DisplayCode})");
@@ -212,14 +212,38 @@ namespace ROM.UserInteraction.ObjectEditorElement.LevelPosition
             Target = SavedValue;
         }
 
-        public void DrawPostWindow()
+        public void DrawPostWindow(RoomCamera? roomCamera)
         {
-            if (DrawPoint)
+            if (DrawPoint && roomCamera != null)
             {
-                DraggablePointButton.Point = Target;
+                DraggablePointButton.Point = RoomSpaceToScreenSpace(Target, roomCamera);
                 DraggablePointButton.Draw();
-                Target = DraggablePointButton.Point;
+                Target = ScreenSpaceToRoomSpace(DraggablePointButton.Point, roomCamera);
             }
+        }
+
+        private static Vector2 RoomSpaceToScreenSpace(Vector2 roomSpace, RoomCamera roomCamera)
+        {
+            Vector2 incamOffset = roomSpace - roomCamera.pos;
+
+            float xScale = Screen.width / roomCamera.sSize.x;
+            float yScale = Screen.height / roomCamera.sSize.y;
+
+            Vector2 screenSpace = new Vector2(incamOffset.x * xScale, Screen.height - incamOffset.y * yScale);
+
+            return screenSpace;
+        }
+
+        private static Vector2 ScreenSpaceToRoomSpace(Vector2 screenSpace, RoomCamera roomCamera)
+        {
+            float xScale = Screen.width / roomCamera.sSize.x;
+            float yScale = Screen.height / roomCamera.sSize.y;
+
+            screenSpace.y = Screen.height - screenSpace.y;
+
+            Vector2 incamOffset = new Vector2(screenSpace.x / xScale, screenSpace.y / yScale);
+
+            return roomCamera.pos + incamOffset;
         }
         #endregion
     }
