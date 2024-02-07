@@ -32,7 +32,15 @@ internal class PolygonElement : IObjectEditorElement
             list.Add(new PointElement($"Vertex {i+1}", (i+1).ToString(), vertices[i].getter, vertices[i].setter, displayTogglePointButton: false));
         }
         this.vertices = [.. list];
+
+        
         fSprites = new FSprite[vertices.Length];
+        Array.ForEach(fSprites, sprite =>
+        {
+            sprite = new FSprite("pixel", true);
+            
+        });
+        
 
         this.displayName = displayName;
     }
@@ -83,9 +91,10 @@ internal class PolygonElement : IObjectEditorElement
     public void DrawPostWindow(RoomCamera? roomCamera)
     {
         Array.ForEach(vertices, vertice => vertice.DrawPostWindow(roomCamera));
+        this.
         Array.ForEach(vertices, vertice =>
         {
-
+            
         });
     }
 
