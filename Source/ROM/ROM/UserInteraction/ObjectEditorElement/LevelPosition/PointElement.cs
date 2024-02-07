@@ -218,7 +218,9 @@ namespace ROM.UserInteraction.ObjectEditorElement.LevelPosition
             {
                 DraggablePointButton.Point = RoomSpaceToScreenSpace(Target, roomCamera);
                 DraggablePointButton.Draw();
-                Target = ScreenSpaceToRoomSpace(DraggablePointButton.Point, roomCamera);
+
+                if (DraggablePointButton.WasDragged)
+                    Target = ScreenSpaceToRoomSpace(DraggablePointButton.Point, roomCamera);
             }
         }
 

@@ -45,6 +45,8 @@ namespace ROM.UserInteraction.ObjectEditorElement.LevelPosition
         #region Properties
         public string DisplayCode { get; set; } = "";
 
+        public bool WasDragged { get; private set; }
+
         public Vector2 Point
         {
             get
@@ -67,7 +69,10 @@ namespace ROM.UserInteraction.ObjectEditorElement.LevelPosition
         #region Methods
         public void Draw()
         {
+            Vector2 lastPoint = Point;
             Point = ButtonDragger.GetNewVectorByDragButton(this.GetHashCode(), Point, () => GUI.RepeatButton(ButtonRect, "", ButtonStyle));
+
+            WasDragged = Point != lastPoint;
 
 
             GUILayout.BeginArea(ButtonRect);
