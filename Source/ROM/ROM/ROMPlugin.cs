@@ -49,8 +49,6 @@ namespace ROM
                 On.Room.Loaded += Room_Loaded;
                 _haveHooked = true;
             }
-            _windowsContainer = gameObject.AddComponent<IMGUIWindowsContainer>();
-            _windowsContainer.DisplayWindows = false;
 
             Logger.LogInfo("ROM UI windows container created");
         }
@@ -72,6 +70,9 @@ namespace ROM
             try
             {
                 orig(self);
+
+                _windowsContainer = gameObject.AddComponent<IMGUIWindowsContainer>();
+                _windowsContainer.DisplayWindows = false;
 
                 _optionInterface = new ROMOptionInterface();
                 MachineConnector.SetRegisteredOI(ROM_MOD_ID, _optionInterface);
