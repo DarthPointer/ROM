@@ -116,7 +116,7 @@ namespace ROM.UserInteraction.ObjectEditorElement.LevelPosition
 
         #region Methods
         private static string FormatCoordinate(float coordinate)
-            => coordinate.ToString("0.####", CultureInfo.InvariantCulture);
+            => coordinate.ToString("0.#", CultureInfo.InvariantCulture);
 
         private static bool TryParseCoordinate(string input, out float coordinate)
         {
