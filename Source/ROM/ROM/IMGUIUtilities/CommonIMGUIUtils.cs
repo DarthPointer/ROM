@@ -9,6 +9,17 @@ namespace ROM.IMGUIUtilities
 {
     internal static class CommonIMGUIUtils
     {
+        private static Texture2D? _defaultHorizontalLineFillTexture;
+
+        private static Texture2D DefaultHorizontalLineFillTexture
+        {
+            get
+            {
+                _defaultHorizontalLineFillTexture ??= GetSingleColorTexture(16, 16, Color.white);
+                return _defaultHorizontalLineFillTexture;
+            }
+        }
+
         /// <summary>
         /// Returns screen coordinates of mouse realigned to IMGUI coordinages (inverted y axis)
         /// </summary>
@@ -37,7 +48,7 @@ namespace ROM.IMGUIUtilities
         /// <param name="spacing">The spacing to add above and below the line.</param>
         public static void HorizontalLine(Texture2D? fillTexture = null, int height = 2, int spacing = 5)
         {
-            fillTexture ??= GetSingleColorTexture(16, 16, Color.white);
+            fillTexture ??= DefaultHorizontalLineFillTexture;
 
             GUIStyle style = new();
             style.normal.background = fillTexture;
