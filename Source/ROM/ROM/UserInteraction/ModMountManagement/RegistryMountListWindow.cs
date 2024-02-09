@@ -147,7 +147,7 @@ namespace ROM.UserInteraction.ModMountManagement
             {
                 if (GUILayout.Button($"Open"))
                 {
-                    mountEntry.AssignedWindow = new(mountEntry.Controller);
+                    mountEntry.AssignedWindow = new(mountEntry.Controller, this);
                     ChildWindowsContainer.AddWindow(mountEntry.AssignedWindow);
                 }
             }
@@ -155,12 +155,26 @@ namespace ROM.UserInteraction.ModMountManagement
             {
                 if (GUILayout.Button($"Close"))
                 {
-                    mountEntry.AssignedWindow.Close();
-                    mountEntry.AssignedWindow = null;
+                    CloseMountEntryWindow(mountEntry);
                 }
             }
 
             GUILayout.EndHorizontal();
+        }
+
+        private void CloseMountEntryWindow(StoredModMountController mountEntry)
+        {
+            mountEntry.AssignedWindow?.Close();
+            mountEntry.AssignedWindow = null;
+        }
+
+        public void CloseMountWindow(ModMountController modMountController)
+        {
+            if (ModMountControllers.FirstOrDefault(stored => stored.Controller == modMountController)
+                is StoredModMountController storedModMountController)
+            {
+                CloseMountEntryWindow(storedModMountController);
+            }
         }
 
         private void ModsForMountCreation()
