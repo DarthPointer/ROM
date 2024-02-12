@@ -55,13 +55,14 @@ namespace ROM
 
         public void Update()
         {
-            if (_optionInterface != null)
+            if (_optionInterface != null && _windowsContainer != null)
             {
-                if (Input.GetKeyDown(_optionInterface.ToggleROMUIKeyConfigurable.Value) && _windowsContainer != null)
+                if (Input.GetKeyDown(_optionInterface.ToggleROMUIKeyConfigurable.Value))
                 {
                     _windowsContainer.DisplayWindows = !_windowsContainer.DisplayWindows;
                     Cursor.visible = _windowsContainer.DisplayWindows;
                 }
+                _windowsContainer.futileContainer.MoveToFront();
             }
         }
 

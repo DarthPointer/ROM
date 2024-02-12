@@ -15,6 +15,7 @@ namespace ROM.UserInteraction.ObjectEditorElement.LevelPosition;
 
 public class PolygonElement : IObjectEditorElement
 {
+    FContainer? container;
     string displayName;
     bool isExpanded, drawPolygon;
     PointElement[] vertices;
@@ -100,8 +101,8 @@ public class PolygonElement : IObjectEditorElement
         //edge draw
         for(int i = 0; i < fSprites.Length; i++)
         {
-            fSprites[i].SetPosition(RoomSpaceToScreenSpace(vertices[i].Target, roomCamera));
-            Vector2 coordinateDifference = RoomSpaceToScreenSpace(vertices[i + 1 >= vertices.Length ? 0 : i + 1].Target - vertices[i].Target, roomCamera);
+            fSprites[i].SetPosition(FutileRoomSpaceToScreenSpace(vertices[i].Target, roomCamera));
+            Vector2 coordinateDifference = FutileRoomSpaceToScreenSpace(vertices[i + 1 >= vertices.Length ? 0 : i + 1].Target, roomCamera) - FutileRoomSpaceToScreenSpace(vertices[i].Target, roomCamera);
             fSprites[i].scaleY = coordinateDifference.magnitude;
             fSprites[i].rotation = VecToDeg( coordinateDifference );
             fSprites[i].anchorY = 0;
@@ -126,6 +127,7 @@ public class PolygonElement : IObjectEditorElement
             ROMPlugin.Logger?.LogError("Polygon Element received null fContainer and won't draw its edges");
             return;
         }
+        this.container = container;
         Array.ForEach(fSprites, sprite => container.AddChild(sprite));
     }
 }

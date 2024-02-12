@@ -217,11 +217,11 @@ namespace ROM.UserInteraction.ObjectEditorElement.LevelPosition
         {
             if (DrawPoint && roomCamera != null)
             {
-                DraggablePointButton.Point = RoomSpaceToScreenSpace(Target, roomCamera);
+                DraggablePointButton.Point = IMGUIRoomSpaceToScreenSpace(Target, roomCamera);
                 DraggablePointButton.Draw();
 
                 if (DraggablePointButton.WasDragged)
-                    Target = ScreenSpaceToRoomSpace(DraggablePointButton.Point, roomCamera);
+                    Target = IMGUIScreenSpaceToRoomSpace(DraggablePointButton.Point, roomCamera);
             }
         }
 

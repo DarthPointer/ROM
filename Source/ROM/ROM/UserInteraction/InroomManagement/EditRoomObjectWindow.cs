@@ -62,7 +62,7 @@ namespace ROM.UserInteraction.InroomManagement
             RoomCamera = roomCamera;
            
 
-            foreach (var item in editorElements)
+            foreach (var item in EditorElements)
             {
                 item.ReceiveFContainer(container);
             }
