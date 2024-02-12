@@ -47,7 +47,7 @@ namespace ROM.UserInteraction.InroomManagement
 
         #region Constructors
         public EditRoomObjectWindow(ModMountController owningController,
-            ObjectData objectData, object targetObject, IEnumerable<IObjectEditorElement> editorElements, RoomCamera? roomCamera)
+            ObjectData objectData, object targetObject, IEnumerable<IObjectEditorElement> editorElements, RoomCamera? roomCamera, FContainer? container)
         {
             WindowHeader = objectData.FilePath;
 
@@ -60,6 +60,13 @@ namespace ROM.UserInteraction.InroomManagement
             EditorElements = editorElements.ToList();
 
             RoomCamera = roomCamera;
+           
+
+            foreach (var item in editorElements)
+            {
+                item.ReceiveFContainer(container);
+            }
+
         }
         #endregion
 

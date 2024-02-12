@@ -249,7 +249,7 @@ namespace ROM.UserInteraction.ModMountManagement
                 {
                     ITypeOperator typeOperator = objectData.GetTypeOperator();
 
-                    EditRoomObjectWindow window = new(this, objectData, roomObject, typeOperator.GetEditorElements(roomObject, ContextRoom), ContextRoom.game.cameras[0]);
+                    EditRoomObjectWindow window = new(this, objectData, roomObject, typeOperator.GetEditorElements(roomObject, ContextRoom), ContextRoom.game.cameras[0], ChildWindowsContainer.futileContainer);
                     EditObjectWindowsDict[objectData] = window;
                     ChildWindowsContainer.AddWindow(window);
 
