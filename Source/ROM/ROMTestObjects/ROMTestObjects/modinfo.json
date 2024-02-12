@@ -5,4 +5,5 @@
 	"requirements": ["DarthPointer.ROM"],
 	"requirement_names": ["Room Object Manager"],
 	"priorities": []
+	"checksum_override_version": true
 }
