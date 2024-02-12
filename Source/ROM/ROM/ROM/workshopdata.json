@@ -1,0 +1,17 @@
+{
+  "Title": "Room Object Manager",
+  "Description": "",
+  "ID": "DarthPointer.ROM",
+  "Version": "0.0.2",
+  "TargetGameVersion": "v1.9.06",
+  "Requirements": "",
+  "RequirementNames": "",
+  "Authors": "Darth Pointer",
+  "Visibility": "Public",
+  "Tags": [
+    "Dependency"
+  ],
+  "WorkshopID": 3144183334,
+  "UploadFilesOnly": true,
+  "UploadThumbnail": false
+}
