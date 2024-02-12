@@ -46,6 +46,9 @@ namespace ROM.UserInteraction.InroomManagement
             }
         }
 
+        private bool IsCollapsed { get; set; }
+        private RegistryMountListWindow OwnerWindow { get; }
+
         private string NewObjectFilePathWithExtension => NewObjectFilePath + ".json";
         private bool NewObjectFilePathIsValid { get; set; } = true;
         private string NewObjectFilePathErrorString { get; set; } = "";
@@ -106,11 +109,12 @@ namespace ROM.UserInteraction.InroomManagement
         #endregion
 
         #region Constructors
-        public ModMountRoomObjectsWindow(ModMountController modMountController)
+        public ModMountRoomObjectsWindow(ModMountController modMountController, RegistryMountListWindow registryMountListWindow)
         {
             _windowRect = new Rect(100, 100, 400, 600);
 
             ModMountController = modMountController;
+            OwnerWindow = registryMountListWindow;
 
             NewObjectTypeOperatorOptionsController = new(TypeOperator.TypeOperators.Select(kvp => new Option<ITypeOperator>(kvp.Value, kvp.Key)));
         }
@@ -128,20 +132,54 @@ namespace ROM.UserInteraction.InroomManagement
 
                 GUILayout.BeginVertical();
 
-                _scrollState = GUILayout.BeginScrollView(_scrollState);
+                DrawTopButtons();
 
-                GUILayout.BeginVertical();
+                if (!IsCollapsed)
+                {
 
-                ListExistingRoomObjects();
+                    _scrollState = GUILayout.BeginScrollView(_scrollState);
 
-                NewObjectCreation();
+                    GUILayout.BeginVertical();
 
-                GUILayout.EndVertical();
+                    NewObjectCreation();
 
-                GUILayout.EndScrollView();
+                    CommonIMGUIUtils.HorizontalLine();
+
+                    ListExistingRoomObjects();
+
+                    GUILayout.EndVertical();
+
+                    GUILayout.EndScrollView();
+                }
 
                 GUILayout.EndVertical();
             }
+        }
+
+        private void DrawTopButtons()
+        {
+            GUILayout.BeginHorizontal();
+            GUILayout.FlexibleSpace();
+
+            if (GUILayout.Button(IsCollapsed ? "+" : "-"))
+                OnCollapseExpandButtonClicked();
+
+            if (GUILayout.Button("x"))
+                OnCloseButtonClicked();
+
+            GUILayout.EndHorizontal();
+        }
+
+        private void OnCollapseExpandButtonClicked()
+        {
+            IsCollapsed = !IsCollapsed;
+        }
+
+        private void OnCloseButtonClicked()
+        {
+            if (ModMountController == null) return;
+
+            OwnerWindow.CloseMountWindow(ModMountController);
         }
 
         private void ListExistingRoomObjects()
@@ -299,8 +337,6 @@ namespace ROM.UserInteraction.InroomManagement
             if (ModMountController?.ContextRoom == null)
                 return;
 
-            CommonIMGUIUtils.HorizontalLine();
-
             if (ModMountController == null)
             {
                 GUILayout.Label("Error: no controller assigned");
@@ -313,11 +349,11 @@ namespace ROM.UserInteraction.InroomManagement
                 return;
             }
 
-            DrawNewObjectFilePath();
-
-            DrawNewObjectTypeOperator();
+            GUILayout.Label("Create new object here");
 
             DrawCreateNewObjectButton();
+            DrawNewObjectFilePath();
+            DrawNewObjectTypeOperator();
         }
 
         private void DrawNewObjectFilePath()
