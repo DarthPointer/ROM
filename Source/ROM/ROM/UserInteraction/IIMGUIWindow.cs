@@ -23,5 +23,9 @@ namespace ROM.UserInteraction
                 container.RemoveWindow(window);
             }
         }
+        public static FContainer? GetFContainer(this IIMGUIWindow window) 
+        {
+            return window.GetContainingContainer()?.futileContainer;
+        }
     }
 }

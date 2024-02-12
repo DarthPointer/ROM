@@ -12,6 +12,7 @@ namespace ROM.UserInteraction
     {
         #region Fields
         private List<IIMGUIWindow> _windows;
+        internal FContainer futileContainer;
         #endregion
 
         #region Properties
@@ -30,6 +31,8 @@ namespace ROM.UserInteraction
         public IMGUIWindowsContainer()
         {
             _windows = new();
+            futileContainer = new FContainer();
+            Futile.stage.AddChild(futileContainer);
         }
         #endregion
 
@@ -69,7 +72,7 @@ namespace ROM.UserInteraction
                 return false;
 
             WindowContainingContainers.Remove(window);
-            
+
             WindowsToRemove.Add(window);
             return _windows.Contains(window);
         }
@@ -98,5 +101,12 @@ namespace ROM.UserInteraction
             WindowsToRemove.Clear();
         }
         #endregion
+    }
+    internal static class IMGUIWindowContainerExtension
+    {
+        public static IMGUIWindowsContainer? GetContainingContainer(this IIMGUIWindow window)
+        {
+            return IMGUIWindowsContainer.WindowContainingContainers.TryGetValue(window, out var container) ? container : null;
+        }
     }
 }
