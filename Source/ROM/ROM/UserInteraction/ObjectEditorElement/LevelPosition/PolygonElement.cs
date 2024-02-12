@@ -3,14 +3,17 @@ using ROM.UserInteraction.InroomManagement;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Mail;
 using System.Runtime;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using static ROM.UserInteraction.ObjectEditorElement.LevelPosition.SpaceConversions;
+using static RWCustom.Custom;
 
 namespace ROM.UserInteraction.ObjectEditorElement.LevelPosition;
 
-internal class PolygonElement : IObjectEditorElement
+public class PolygonElement : IObjectEditorElement
 {
     string displayName;
     bool isExpanded, drawPolygon;
@@ -26,7 +29,7 @@ internal class PolygonElement : IObjectEditorElement
     }
     public PolygonElement(string displayName, params PointAccessor[] vertices)
     {
-        List<PointElement> list = new();
+        List<PointElement> list = [];
         for(int i=0; i<vertices.Length; i++)
         {
             list.Add(new PointElement($"Vertex {i+1}", (i+1).ToString(), vertices[i].getter, vertices[i].setter, displayTogglePointButton: false));
@@ -35,12 +38,11 @@ internal class PolygonElement : IObjectEditorElement
 
         
         fSprites = new FSprite[vertices.Length];
-        Array.ForEach(fSprites, sprite =>
+        for(int i=0; i<fSprites.Length; i++)
         {
-            sprite = new FSprite("pixel", true);
-            
-        });
-        
+            fSprites[i] = new FSprite("pixel", true);
+        }
+
 
         this.displayName = displayName;
     }
@@ -90,21 +92,40 @@ internal class PolygonElement : IObjectEditorElement
 
     public void DrawPostWindow(RoomCamera? roomCamera)
     {
+        if (roomCamera == null) return;
+        if (!drawPolygon) return;
+        //point draw
         Array.ForEach(vertices, vertice => vertice.DrawPostWindow(roomCamera));
-        this.
-        Array.ForEach(vertices, vertice =>
+
+        //edge draw
+        for(int i = 0; i < fSprites.Length; i++)
         {
-            
-        });
+            fSprites[i].SetPosition(RoomSpaceToScreenSpace(vertices[i].Target, roomCamera));
+            Vector2 coordinateDifference = RoomSpaceToScreenSpace(vertices[i + 1 >= vertices.Length ? 0 : i + 1].Target - vertices[i].Target, roomCamera);
+            fSprites[i].scaleY = coordinateDifference.magnitude;
+            fSprites[i].rotation = VecToDeg( coordinateDifference );
+            fSprites[i].anchorY = 0;
+        }
     }
 
     private void OnShowHideButtonClicked()
     {
         drawPolygon = !drawPolygon;
         Array.ForEach(vertices, vertice => vertice.DrawPoint = drawPolygon);
+        Array.ForEach(fSprites, sprite => sprite.isVisible = drawPolygon);
     }
     private void OnExpandButtonClicked()
     {
         isExpanded = !isExpanded;
+    }
+
+    public void ReceiveFContainer(FContainer? container)
+    {
+        if(container == null)
+        {
+            ROMPlugin.Logger?.LogError("Polygon Element received null fContainer and won't draw its edges");
+            return;
+        }
+        Array.ForEach(fSprites, sprite => container.AddChild(sprite));
     }
 }

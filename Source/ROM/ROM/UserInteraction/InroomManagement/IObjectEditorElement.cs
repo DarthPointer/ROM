@@ -35,5 +35,7 @@ namespace ROM.UserInteraction.InroomManagement
         /// The call inside OnGUI to draw elements outside the object editor window such as other windows or detached elements.
         /// </summary>
         void DrawPostWindow(RoomCamera? roomCamera);
+
+        void ReceiveFContainer(FContainer? container);
     }
 }

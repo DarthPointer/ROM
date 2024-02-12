@@ -161,5 +161,9 @@ namespace ROM.UserInteraction.ObjectEditorElement.TextField
 
         public void DrawPostWindow(RoomCamera? roomCamera)
         { }
+
+        public void ReceiveFContainer(FContainer? container)
+        {
+        }
     }
 }

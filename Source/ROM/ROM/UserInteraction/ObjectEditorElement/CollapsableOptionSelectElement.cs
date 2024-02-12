@@ -250,6 +250,10 @@ namespace ROM.UserInteraction.ObjectEditorElement
 
         public void DrawPostWindow(RoomCamera? roomCamera)
         { }
+
+        public void ReceiveFContainer(FContainer? container)
+        {
+        }
         #endregion
     }
 }

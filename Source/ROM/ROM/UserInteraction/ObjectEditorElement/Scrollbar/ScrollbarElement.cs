@@ -118,6 +118,10 @@ namespace ROM.UserInteraction.ObjectEditorElement.Scrollbar
 
         public void DrawPostWindow(RoomCamera? roomCamera)
         { }
+
+        public void ReceiveFContainer(FContainer? container)
+        {
+        }
         #endregion
     }
 

@@ -8,6 +8,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using static ROM.UserInteraction.ObjectEditorElement.LevelPosition.SpaceConversions;
 
 namespace ROM.UserInteraction.ObjectEditorElement.LevelPosition
 {
@@ -40,10 +41,10 @@ namespace ROM.UserInteraction.ObjectEditorElement.LevelPosition
             set => Target = Target with { y = value };
         }
 
-        private Vector2 Target
+        public Vector2 Target
         {
             get => Getter();
-            set => Setter(value);
+            private set => Setter(value);
         }
 
         private Vector2 SavedValue { get; set; }
@@ -224,29 +225,11 @@ namespace ROM.UserInteraction.ObjectEditorElement.LevelPosition
             }
         }
 
-        private static Vector2 RoomSpaceToScreenSpace(Vector2 roomSpace, RoomCamera roomCamera)
+        public void ReceiveFContainer(FContainer? container)
         {
-            Vector2 incamOffset = roomSpace - roomCamera.pos;
-
-            float xScale = Screen.width / roomCamera.sSize.x;
-            float yScale = Screen.height / roomCamera.sSize.y;
-
-            Vector2 screenSpace = new Vector2(incamOffset.x * xScale, Screen.height - incamOffset.y * yScale);
-
-            return screenSpace;
         }
 
-        private static Vector2 ScreenSpaceToRoomSpace(Vector2 screenSpace, RoomCamera roomCamera)
-        {
-            float xScale = Screen.width / roomCamera.sSize.x;
-            float yScale = Screen.height / roomCamera.sSize.y;
 
-            screenSpace.y = Screen.height - screenSpace.y;
-
-            Vector2 incamOffset = new Vector2(screenSpace.x / xScale, screenSpace.y / yScale);
-
-            return roomCamera.pos + incamOffset;
-        }
         #endregion
     }
 }
