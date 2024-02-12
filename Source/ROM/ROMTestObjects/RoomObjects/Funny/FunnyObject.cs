@@ -18,6 +18,13 @@ namespace ROMTestObjects.RoomObjects.Funny
         public int PlusFiveMinusThreeInt { get; set; }
         public int PlusFiveMinusThreeInt2 { get; set; }
         public char CursedChar { get; set; }
+        public Vector2[] Polygon { get; set; } =
+        {
+            new Vector2(500, 500),
+            new Vector2(500, 600),
+            new Vector2(600, 600),
+            new Vector2(600, 500)
+        };
 
         public bool AFlag { get; set; }
 
@@ -42,6 +49,12 @@ namespace ROMTestObjects.RoomObjects.Funny
     public struct SerializableVector2
     {
         public float x, y;
+        public SerializableVector2(float x, float y)
+        {
+            this.x = x;
+            this.y = y;
+        }
+        
     }
 
     public enum FunnyEnum
