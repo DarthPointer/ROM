@@ -1,5 +1,5 @@
 {
-  "RoomId": "SU_S01",
+  "RoomId": "SU_B13",
   "TypeId": "FunnyObject",
   "DataJson": {
     "VersionId": "0.0.0",
@@ -10,11 +10,11 @@
       "PlusMinusTenFloat": 0.0,
       "PlusFiveMinusThreeInt": 0,
       "PlusFiveMinusThreeInt2": 0,
-      "CursedChar": "a",
+      "CursedChar": "\u0000",
       "SerializablePolygon": [
         {
-          "x": 463.999939,
-          "y": 340.0
+          "x": 500.0,
+          "y": 500.0
         },
         {
           "x": 500.0,
@@ -25,8 +25,8 @@
           "y": 600.0
         },
         {
-          "x": 706.9991,
-          "y": 116.000015
+          "x": 600.0,
+          "y": 500.0
         }
       ],
       "AFlag": false,
@@ -34,8 +34,8 @@
       "BoringEnum": 2,
       "FunEnum": 3,
       "SerializablePoint": {
-        "x": 500.0,
-        "y": 500.0
+        "x": 1.0,
+        "y": 1.0
       }
     }
   }

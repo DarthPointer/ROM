@@ -6,3 +6,4 @@
 [ADD]SU_A22\FunnyObject.json
 [ADD]SU_S01\FunnyObject.json
 [ADD]SU_B07\FunnyObject.json
+[ADD]SU_B13\FunnyObject.json
