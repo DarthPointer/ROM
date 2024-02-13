@@ -11,31 +11,31 @@
       "PlusFiveMinusThreeInt": 0,
       "PlusFiveMinusThreeInt2": 0,
       "CursedChar": "a",
-      "SerializablePolygon": [
+      "Polygon": [
         {
-          "x": 463.999939,
-          "y": 340.0
+          "x": -124.999939,
+          "y": 90.9999847
         },
         {
-          "x": 500.0,
-          "y": 600.0
+          "x": 378.000061,
+          "y": 608.0
         },
         {
-          "x": 600.0,
-          "y": 600.0
+          "x": 1081.0,
+          "y": 680.0
         },
         {
-          "x": 706.9991,
-          "y": 116.000015
+          "x": 800.000061,
+          "y": 322.0
         }
       ],
       "AFlag": false,
       "AnyEnum": 2,
       "BoringEnum": 2,
       "FunEnum": 3,
-      "SerializablePoint": {
-        "x": 500.0,
-        "y": 500.0
+      "Point": {
+        "x": 1.0,
+        "y": 1.0
       }
     }
   }
