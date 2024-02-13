@@ -163,7 +163,9 @@ namespace ROM.UserInteraction.ObjectEditorElement.TextField
         { }
 
         public void ReceiveFContainer(FContainer? container)
-        {
-        }
+        { }
+
+        public void Terminate()
+        { }
     }
 }

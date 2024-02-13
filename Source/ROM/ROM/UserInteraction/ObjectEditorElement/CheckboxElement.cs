@@ -68,7 +68,9 @@ namespace ROM.UserInteraction.ObjectEditorElement
         { }
 
         public void ReceiveFContainer(FContainer? container)
-        {
-        }
+        { }
+
+        public void Terminate()
+        { }
     }
 }

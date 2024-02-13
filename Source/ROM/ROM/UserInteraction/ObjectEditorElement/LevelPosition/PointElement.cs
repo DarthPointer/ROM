@@ -226,10 +226,10 @@ namespace ROM.UserInteraction.ObjectEditorElement.LevelPosition
         }
 
         public void ReceiveFContainer(FContainer? container)
-        {
-        }
+        { }
 
-
+        public void Terminate()
+        { }
         #endregion
     }
 }

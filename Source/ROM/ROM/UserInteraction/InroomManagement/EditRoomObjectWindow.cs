@@ -187,6 +187,11 @@ namespace ROM.UserInteraction.InroomManagement
 
         public void Close()
         {
+            foreach(IObjectEditorElement editorElement in EditorElements)
+            {
+                editorElement.Terminate();
+            }
+
             this.RemoveFromContainer();
             OwningController.RemoveWindowForObject(ObjectData);
         }

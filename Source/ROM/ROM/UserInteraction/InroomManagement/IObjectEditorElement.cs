@@ -37,5 +37,7 @@ namespace ROM.UserInteraction.InroomManagement
         void DrawPostWindow(RoomCamera? roomCamera);
 
         void ReceiveFContainer(FContainer? container);
+
+        void Terminate();
     }
 }

@@ -120,8 +120,10 @@ namespace ROM.UserInteraction.ObjectEditorElement.Scrollbar
         { }
 
         public void ReceiveFContainer(FContainer? container)
-        {
-        }
+        { }
+
+        public virtual void Terminate()
+        { }
         #endregion
     }
 

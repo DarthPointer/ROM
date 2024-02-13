@@ -130,4 +130,12 @@ public class PolygonElement : IObjectEditorElement
         this.container = container;
         Array.ForEach(fSprites, sprite => container.AddChild(sprite));
     }
+
+    public void Terminate()
+    {
+        foreach(var sprite in fSprites)
+        {
+            sprite.RemoveFromContainer();
+        }
+    }
 }
