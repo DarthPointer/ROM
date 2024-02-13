@@ -44,7 +44,7 @@ namespace ROM.UserInteraction.ObjectEditorElement.LevelPosition
         public Vector2 Target
         {
             get => Getter();
-            private set => Setter(value);
+            set => Setter(value);
         }
 
         private Vector2 SavedValue { get; set; }
