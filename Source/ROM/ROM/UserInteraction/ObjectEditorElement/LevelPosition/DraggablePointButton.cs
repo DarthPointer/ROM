@@ -18,7 +18,7 @@ namespace ROM.UserInteraction.ObjectEditorElement.LevelPosition
         {
             if(ButtonStyle.normal.background == null)
             {
-                Texture2D buttonTexture = CommonIMGUIUtils.GetSingleColorTexture(16, 16, Color.white with { a = 0.2f });
+                Texture2D buttonTexture = CommonIMGUIUtils.GetSingleColorTexture(16, 16, Color.white with { a = 0.5f });
 
                 for (int x = 0; x < 16; x++)
                 {
@@ -37,6 +37,7 @@ namespace ROM.UserInteraction.ObjectEditorElement.LevelPosition
                 ButtonStyle.active.background = buttonTexture;
 
                 BlackTextStyle.normal.textColor = Color.black;
+                BlackTextStyle.fontStyle = FontStyle.Bold;
             }
             ButtonStyle.normal.background.Apply();   
         }
