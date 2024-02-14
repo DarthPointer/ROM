@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace ROMTestObjects.RoomObjects.Funny
 {
@@ -20,9 +21,21 @@ namespace ROMTestObjects.RoomObjects.Funny
 
         public override string TypeId => nameof(FunnyObject);
 
-        public override FunnyObject CreateNew(Room room)
+        public override FunnyObject CreateNew(Room room, Rect currentScreenRect)
         {
-            return new() { room = room };
+            Vector2 center = currentScreenRect.center;
+
+            float screenWidth = currentScreenRect.width;
+            float screenHeight = currentScreenRect.height;
+
+            Vector2[] polygon = {
+                center + new Vector2(screenWidth/8, screenHeight/8),
+                center + new Vector2(screenWidth/8, - screenHeight/8),
+                center + new Vector2(-screenWidth/8, -screenHeight/8),
+                center + new Vector2(-screenWidth/8, screenHeight/8)
+            };
+
+            return new() { room = room, Polygon = polygon };
         }
 
         public override FunnyObject Load(JToken dataJson, Room room)

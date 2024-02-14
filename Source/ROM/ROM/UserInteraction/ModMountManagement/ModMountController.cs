@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace ROM.UserInteraction.ModMountManagement
 {
@@ -120,7 +121,8 @@ namespace ROM.UserInteraction.ModMountManagement
             object newObject;
             try
             {
-                newObject = typeOperator.CreateNew(ContextRoom);
+                Rect currentCameraRect = new(ContextRoom.game.cameras[0].pos, ContextRoom.game.cameras[0].sSize);
+                newObject = typeOperator.CreateNew(ContextRoom, currentCameraRect);
                 (newObject as ICallAfterPropertiesSet)?.OnAfterPropertiesSet();
             }
             catch (Exception ex)

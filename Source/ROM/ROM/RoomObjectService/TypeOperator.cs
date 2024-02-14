@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace ROM.RoomObjectService
 {
@@ -25,8 +26,9 @@ namespace ROM.RoomObjectService
         /// A factory call to create a brand new object with ROM UI.
         /// </summary>
         /// <param name="room">The room the object is created for.</param>
+        /// <param name="currentCameraRect">Use the current camera rect to set initial level positions in a friendly manner (within the camera).</param>
         /// <returns>The created object.</returns>
-        object CreateNew(Room room);
+        object CreateNew(Room room, Rect currentCameraRect);
 
         /// <summary>
         /// A factory call to load the object from its JSON.
@@ -125,9 +127,10 @@ namespace ROM.RoomObjectService
         /// A factory call to create a brand new object with ROM UI.
         /// </summary>
         /// <param name="room">The room the object is created for.</param>
+        /// <param name="currentCameraRect">Use the current camera rect to set initial level positions in a friendly manner (within the camera).</param>
         /// <returns>The created object.</returns>
-        public abstract TOBJ CreateNew(Room room);
-        object ITypeOperator.CreateNew(Room room) => CreateNew(room);
+        public abstract TOBJ CreateNew(Room room, Rect currentCameraRect);
+        object ITypeOperator.CreateNew(Room room, Rect currentCameraRect) => CreateNew(room, currentCameraRect);
 
         /// <summary>
         /// A factory call to load the object from its JSON.
