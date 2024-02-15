@@ -60,10 +60,8 @@ namespace ROMTestObjects.RoomObjects.Funny
 
         public override IEnumerable<IObjectEditorElement> GetEditorElements(FunnyObject obj, Room room)
         {
-            yield return new PolygonElement("funnyPolygon", new PolygonElement.PointAccessor { getter = () => obj.Polygon[0], setter = (value) => obj.Polygon[0] = value },
-                new PolygonElement.PointAccessor { getter = () => obj.Polygon[1], setter = (value) => obj.Polygon[1] = value },
-                new PolygonElement.PointAccessor { getter = () => obj.Polygon[2], setter = (value) => obj.Polygon[2] = value },
-                new PolygonElement.PointAccessor { getter = () => obj.Polygon[3], setter = (value) => obj.Polygon[3] = value });
+            yield return Elements.Polygon("funnyPolygon", obj.Polygon);
+
             yield return Elements.TextField(nameof(FunnyObject.JustAFloat),
                 getter: () => obj.JustAFloat, setter: value => obj.JustAFloat = value);
 

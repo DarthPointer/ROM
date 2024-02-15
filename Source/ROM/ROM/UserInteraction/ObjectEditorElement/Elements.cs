@@ -205,11 +205,26 @@ namespace ROM.UserInteraction.ObjectEditorElement
         }
         #endregion
 
-        #region Point
+        #region Point and Polygon
         public static IObjectEditorElement Point(string displayName, string displayCode, Func<Vector2> getter, Action<Vector2> setter,
             bool displayTogglePointButton = true)
         {
             return new PointElement(displayName, displayCode, getter, setter, displayTogglePointButton);
+        }
+
+        public static IObjectEditorElement Polygon(string displayName, Vector2[] vertices)
+        {
+            PolygonElement.PointAccessor[] accessors = new PolygonElement.PointAccessor[vertices.Length];
+
+            for (int i = 0; i < vertices.Length; i++)
+            {
+                // Captured variable scope matters.
+                int index = i;
+                accessors[index].getter = () => vertices[index];
+                accessors[index].setter = val => vertices[index] = val;
+            }
+
+            return new PolygonElement(displayName, accessors);
         }
         #endregion
     }
