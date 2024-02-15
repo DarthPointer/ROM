@@ -3,12 +3,14 @@ using ROM.RoomObjectService;
 using ROM.UserInteraction;
 using ROM.UserInteraction.InroomManagement;
 using ROM.UserInteraction.ObjectEditorElement;
+using ROM.UserInteraction.ObjectEditorElement.LevelPosition;
 using ROM.UserInteraction.ObjectEditorElement.Scrollbar;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace ROMTestObjects.RoomObjects.Funny
 {
@@ -19,9 +21,21 @@ namespace ROMTestObjects.RoomObjects.Funny
 
         public override string TypeId => nameof(FunnyObject);
 
-        public override FunnyObject CreateNew(Room room)
+        public override FunnyObject CreateNew(Room room, Rect currentScreenRect)
         {
-            return new() { room = room };
+            Vector2 center = currentScreenRect.center;
+
+            float screenWidth = currentScreenRect.width;
+            float screenHeight = currentScreenRect.height;
+
+            Vector2[] polygon = {
+                center + new Vector2(screenWidth/8, screenHeight/8),
+                center + new Vector2(screenWidth/8, - screenHeight/8),
+                center + new Vector2(-screenWidth/8, -screenHeight/8),
+                center + new Vector2(-screenWidth/8, screenHeight/8)
+            };
+
+            return new() { room = room, Polygon = polygon };
         }
 
         public override FunnyObject Load(JToken dataJson, Room room)
@@ -46,6 +60,10 @@ namespace ROMTestObjects.RoomObjects.Funny
 
         public override IEnumerable<IObjectEditorElement> GetEditorElements(FunnyObject obj, Room room)
         {
+            yield return new PolygonElement("funnyPolygon", new PolygonElement.PointAccessor { getter = () => obj.Polygon[0], setter = (value) => obj.Polygon[0] = value },
+                new PolygonElement.PointAccessor { getter = () => obj.Polygon[1], setter = (value) => obj.Polygon[1] = value },
+                new PolygonElement.PointAccessor { getter = () => obj.Polygon[2], setter = (value) => obj.Polygon[2] = value },
+                new PolygonElement.PointAccessor { getter = () => obj.Polygon[3], setter = (value) => obj.Polygon[3] = value });
             yield return Elements.TextField(nameof(FunnyObject.JustAFloat),
                 getter: () => obj.JustAFloat, setter: value => obj.JustAFloat = value);
 
@@ -105,8 +123,11 @@ namespace ROMTestObjects.RoomObjects.Funny
 
 
             yield return Elements.CollapsableOptionSelect(nameof(FunnyObject.FunEnum),
-                getter: () => obj.FunEnum, value => obj.FunEnum = value,
+                getter: () => obj.FunEnum, setter: value => obj.FunEnum = value,
                 FunnyEnum.Fun, FunnyEnum.SuperFun);
+
+            yield return Elements.Point(nameof(FunnyObject.Point), "p",
+                getter: () => obj.Point, setter: value => obj.Point = value);
         }
     }
 }

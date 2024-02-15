@@ -49,7 +49,7 @@ namespace ROM.UserInteraction.ObjectEditorElement
             SavedValue = Target;
         }
 
-        public void Draw()
+        public void Draw(RoomCamera? roomCamera)
         {
             Target = GUILayout.Toggle(Target, DisplayName);
         }
@@ -64,7 +64,13 @@ namespace ROM.UserInteraction.ObjectEditorElement
             Target = SavedValue;
         }
 
-        public void DrawPostWindow()
+        public void DrawPostWindow(RoomCamera? roomCamera)
+        { }
+
+        public void ReceiveFContainer(FContainer? container)
+        { }
+
+        public void Terminate()
         { }
     }
 }

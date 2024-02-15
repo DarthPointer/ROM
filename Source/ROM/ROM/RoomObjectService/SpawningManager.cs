@@ -38,6 +38,10 @@ namespace ROM.RoomObjectService
         /// <param name="room">The room to spawn objects in.</param>
         public void SpawnForRoom(Room room)
         {
+            // sus room loaded for reasons unknown
+            if (room.game == null)
+                return;
+
             ROMPlugin.Logger?.LogInfo($"{typeof(SpawningManager)} spawns objects for room {room.abstractRoom.name}");
 
             foreach (ObjectData objectData in GetDatasForRoom(room))

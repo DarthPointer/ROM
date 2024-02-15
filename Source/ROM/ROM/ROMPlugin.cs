@@ -49,21 +49,20 @@ namespace ROM
                 On.Room.Loaded += Room_Loaded;
                 _haveHooked = true;
             }
-            _windowsContainer = gameObject.AddComponent<IMGUIWindowsContainer>();
-            _windowsContainer.DisplayWindows = false;
 
             Logger.LogInfo("ROM UI windows container created");
         }
 
         public void Update()
         {
-            if (_optionInterface != null)
+            if (_optionInterface != null && _windowsContainer != null)
             {
-                if (Input.GetKeyDown(_optionInterface.ToggleROMUIKeyConfigurable.Value) && _windowsContainer != null)
+                if (Input.GetKeyDown(_optionInterface.ToggleROMUIKeyConfigurable.Value))
                 {
                     _windowsContainer.DisplayWindows = !_windowsContainer.DisplayWindows;
                     Cursor.visible = _windowsContainer.DisplayWindows;
                 }
+                _windowsContainer.futileContainer.MoveToFront();
             }
         }
 
@@ -72,6 +71,9 @@ namespace ROM
             try
             {
                 orig(self);
+
+                _windowsContainer = gameObject.AddComponent<IMGUIWindowsContainer>();
+                _windowsContainer.DisplayWindows = false;
 
                 _optionInterface = new ROMOptionInterface();
                 MachineConnector.SetRegisteredOI(ROM_MOD_ID, _optionInterface);

@@ -1,5 +1,4 @@
-﻿using Rewired.UI.ControlMapper;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,7 +19,7 @@ namespace ROM.UserInteraction.InroomManagement
         /// <summary>
         /// The call inside the IMGUI window to draw the element.
         /// </summary>
-        void Draw();
+        void Draw(RoomCamera? roomCamera);
 
         /// <summary>
         /// Called when the current state of room object is saved successfully.
@@ -35,6 +34,10 @@ namespace ROM.UserInteraction.InroomManagement
         /// <summary>
         /// The call inside OnGUI to draw elements outside the object editor window such as other windows or detached elements.
         /// </summary>
-        void DrawPostWindow();
+        void DrawPostWindow(RoomCamera? roomCamera);
+
+        void ReceiveFContainer(FContainer? container);
+
+        void Terminate();
     }
 }

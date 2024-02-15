@@ -9,40 +9,41 @@ using UnityEngine;
 
 namespace ROM.IMGUIUtilities
 {
-    internal static class WindowResizer
+    internal static class ButtonDragger
     {
         private const int LEFT_MOUSE_BUTTON = 0;
 
-        private static IIMGUIWindow? CurrentlyResizedWindow { get; set; }
+        
+        private static int? DragTargetHash { get; set; }
 
-        private static Vector2 InitialSize { get; set; }
+        private static Vector2 InitialVector { get; set; }
 
         private static Vector2 InitialDragPos { get; set; }
 
-        public static Vector2 GetNewSizeByDragButton(IIMGUIWindow windowToResize, Vector2 currentSize)
+        public static Vector2 GetNewVectorByDragButton(int targetHash, Vector2 currentVector, Func<bool> buttonMethod)
         {
             // Always draw the button
-            if (GUILayout.RepeatButton("~"))
+            if (buttonMethod())
             {
                 // If already resizing a different window
-                if (CurrentlyResizedWindow != null && windowToResize != CurrentlyResizedWindow)
+                if (DragTargetHash != null && targetHash != DragTargetHash)
                 {
-                    return currentSize;
+                    return currentVector;
                 }
 
                 // If there was no window dragged
-                if (CurrentlyResizedWindow == null)
+                if (DragTargetHash == null)
                 {
                     InitialDragPos = CommonIMGUIUtils.GetScreenMouseUICoordinates();
-                    InitialSize = currentSize;
-                    CurrentlyResizedWindow = windowToResize;
+                    InitialVector = currentVector;
+                    DragTargetHash = targetHash;
 
                     // The drag is at the same spot now so will return zero change anyway.
-                    return currentSize;
+                    return currentVector;
                 }
 
-                // Here it is guaranteed that CurrentlyResizedWindow is the windowToResize
-                return InitialSize + CommonIMGUIUtils.GetScreenMouseUICoordinates() - InitialDragPos;
+                // Here it is guaranteed that targetHash is the same as DragTargetHash.
+                return InitialVector + CommonIMGUIUtils.GetScreenMouseUICoordinates() - InitialDragPos;
             }
 
 
@@ -50,7 +51,7 @@ namespace ROM.IMGUIUtilities
             else
             {
                 // If we are resizing this window
-                if (CurrentlyResizedWindow == windowToResize)
+                if (DragTargetHash == targetHash)
                 {
                     // If the button is still held
                     if (Input.GetMouseButton(LEFT_MOUSE_BUTTON))
@@ -59,14 +60,14 @@ namespace ROM.IMGUIUtilities
                         //Input.ResetInputAxes();
 
                         // We continue the drag
-                        return InitialSize + CommonIMGUIUtils.GetScreenMouseUICoordinates() - InitialDragPos;
+                        return InitialVector + CommonIMGUIUtils.GetScreenMouseUICoordinates() - InitialDragPos;
                     }
 
                     // If it is not, we stop the drag
-                    CurrentlyResizedWindow = null;
+                    DragTargetHash = null;
                 }
 
-                return currentSize;
+                return currentVector;
             }
         }
     }

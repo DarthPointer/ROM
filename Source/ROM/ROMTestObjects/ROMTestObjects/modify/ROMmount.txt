@@ -2,3 +2,8 @@
 [ADD].json
 [ADD]SU_A37\FunnyObject.json
 [ADD]SU_A37\FunnyObject3.json
+[ADD]SU_C04\FunnyObject.json
+[ADD]SU_A22\FunnyObject.json
+[ADD]SU_S01\FunnyObject.json
+[ADD]SU_B07\FunnyObject.json
+[ADD]SU_B13\FunnyObject.json

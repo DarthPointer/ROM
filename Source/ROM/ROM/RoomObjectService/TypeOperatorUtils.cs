@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace ROM.RoomObjectService
 {
@@ -128,12 +129,19 @@ namespace ROM.RoomObjectService
             protected override IList<JsonProperty> CreateProperties(Type type, MemberSerialization memberSerialization)
             {
                 IList<JsonProperty> baseResult = base.CreateProperties(type, memberSerialization);
-                return baseResult.Where(AcceptUADProperty).ToList();
+                return baseResult.Where(AcceptProperty).ToList();
             }
 
-            private static bool AcceptUADProperty(JsonProperty property)
+            private static bool AcceptProperty(JsonProperty property)
             {
-                return property.DeclaringType != typeof(UpdatableAndDeletable);
+                if (property.DeclaringType == typeof(UpdatableAndDeletable)) return false;
+                
+                if (property.DeclaringType == typeof(Vector2))
+                {
+                    return property.PropertyName == nameof(Vector2.x) || property.PropertyName == nameof(Vector2.y);
+                }
+
+                return true;
             }
         }
     }

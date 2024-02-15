@@ -133,7 +133,7 @@ namespace ROM.UserInteraction.ObjectEditorElement.TextField
             Target = SavedValue;
         }
 
-        public void Draw()
+        public void Draw(RoomCamera? roomCamera)
         {
             GUILayout.BeginVertical();
             GUILayout.BeginHorizontal();
@@ -159,7 +159,13 @@ namespace ROM.UserInteraction.ObjectEditorElement.TextField
             GUILayout.EndVertical();
         }
 
-        public void DrawPostWindow()
+        public void DrawPostWindow(RoomCamera? roomCamera)
+        { }
+
+        public void ReceiveFContainer(FContainer? container)
+        { }
+
+        public void Terminate()
         { }
     }
 }

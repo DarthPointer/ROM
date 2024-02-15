@@ -167,7 +167,7 @@ namespace ROM.UserInteraction.ObjectEditorElement
             Target = option.Value;
         }
 
-        public void Draw()
+        public void Draw(RoomCamera? roomCamera)
         {
             CommonIMGUIUtils.HorizontalLine();
             GUILayout.Label(Header);
@@ -248,7 +248,13 @@ namespace ROM.UserInteraction.ObjectEditorElement
             Target = SavedOption;
         }
 
-        public void DrawPostWindow()
+        public void DrawPostWindow(RoomCamera? roomCamera)
+        { }
+
+        public void ReceiveFContainer(FContainer? container)
+        { }
+
+        public void Terminate()
         { }
         #endregion
     }
