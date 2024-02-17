@@ -169,7 +169,7 @@ namespace ROM.UserInteraction.ModMountManagement
             }
 
             SpawningManager.SpawnedObjectsTracker.Remove(newObjectData);
-            SpawningManager.SpawnedObjectsTracker.Add(newObjectData, new WeakReference<object>(newObject));
+            SpawningManager.SpawnedObjectsTracker.Add(newObjectData, new ObjectHost() { Object = new WeakReference<object>(newObject) });
             try
             {
                 typeOperator.AddToRoom(newObject, ContextRoom);
@@ -205,7 +205,7 @@ namespace ROM.UserInteraction.ModMountManagement
             AssertContextRoomNotNull();
 
             if (SpawningManager.SpawnedObjectsTracker.TryGetValue(objectData, out var objRef) &&
-                    objRef.TryGetTarget(out object obj))
+                    objRef.Object.TryGetTarget(out object obj))
             {
                 try
                 {
@@ -247,11 +247,14 @@ namespace ROM.UserInteraction.ModMountManagement
 
             if (EditObjectWindowsDict[objectData] == null)
             {
-                if (SpawningManager.SpawnedObjectsTracker[objectData].TryGetTarget(out object roomObject))
+                if (SpawningManager.SpawnedObjectsTracker.TryGetValue(objectData, out ObjectHost objectHost))
                 {
                     ITypeOperator typeOperator = objectData.GetTypeOperator();
 
-                    EditRoomObjectWindow window = new(this, objectData, roomObject, typeOperator.GetEditorElements(roomObject, ContextRoom), ContextRoom.game.cameras[0], ChildWindowsContainer.futileContainer);
+                    EditRoomObjectWindow window = new(this, objectData, objectHost,
+                        roomObject => typeOperator.GetEditorElements(roomObject, ContextRoom),
+                        ContextRoom.game.cameras[0], ChildWindowsContainer.futileContainer);
+
                     EditObjectWindowsDict[objectData] = window;
                     ChildWindowsContainer.AddWindow(window);
 
@@ -259,7 +262,7 @@ namespace ROM.UserInteraction.ModMountManagement
                 }
 
                 string noSpawnedObjectFoundErrorString =
-                    $"Can not create a window to edit {objectData.FullLogString} because there is no object found spawned by it.";
+                    $"Can not create a window to edit {objectData.FullLogString} because there is no object host found for it.";
 
                 ROMPlugin.Logger?.LogError(noSpawnedObjectFoundErrorString);
                 throw new Exception(noSpawnedObjectFoundErrorString);

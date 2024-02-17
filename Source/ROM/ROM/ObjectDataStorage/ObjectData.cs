@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using ROM.RoomObjectService;
+using ROM.RoomObjectService.SpawningCondition;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -72,6 +73,9 @@ namespace ROM.ObjectDataStorage
             get;
             set;
         } = new JObject();
+
+        public string? SpawningConditionTypeId { get; set; }
+        public JToken? SpawningConditionDataJson { get; set; }
         #endregion
 
         #region Methods

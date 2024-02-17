@@ -6,12 +6,13 @@ using System.Text;
 using System.Threading.Tasks;
 using BepInEx.Logging;
 using ROM.ObjectDataStorage;
+using ROM.RoomObjectService.SpawningCondition;
 
 namespace ROM.RoomObjectService
 {
     internal class SpawningManager
     {
-        internal static Dictionary<ObjectData, WeakReference<object>> SpawnedObjectsTracker { get; } = [];
+        internal static Dictionary<ObjectData, ObjectHost> SpawnedObjectsTracker { get; } = [];
 
         #region Properties
         /// <summary>
@@ -48,12 +49,24 @@ namespace ROM.RoomObjectService
             {
                 try
                 {
+                    if (!SpawnedObjectsTracker.TryGetValue(objectData, out ObjectHost host))
+                    {
+                        host = new();
+
+                        if (objectData.SpawningConditionTypeId != null && objectData.SpawningConditionDataJson != null &&
+                            SpawningConditionOperator.ConditionTypeOperators.TryGetValue(objectData.SpawningConditionTypeId, out var conditionOperator))
+                        {
+                            host.SpawningCondition = conditionOperator.Load(objectData.SpawningConditionDataJson);
+                        }
+                    }
+
+
                     ITypeOperator typeOperator = objectData.GetTypeOperator();
 
                     object newObj = typeOperator.Load(objectData.DataJson, room);
                     (newObj as ICallAfterPropertiesSet)?.OnAfterPropertiesSet();
 
-                    SpawnedObjectsTracker[objectData] = new(newObj);
+                    host.Object = new(newObj);
                     typeOperator.AddToRoom(newObj, room);
                 }
                 catch (Exception ex)

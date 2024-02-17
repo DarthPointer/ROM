@@ -4,6 +4,7 @@ using ROM.RoomObjectService;
 using ROM.UserInteraction.ModMountManagement;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -30,13 +31,15 @@ namespace ROM.UserInteraction.InroomManagement
 
         private ModMountController OwningController { get; }
 
-        private IReadOnlyList<IObjectEditorElement> EditorElements { get; }
+        private IReadOnlyList<IObjectEditorElement> ObjectEditorElements { get; set; }
+        private Func<object, IEnumerable<IObjectEditorElement>> ObjectEditorElementsFactory { get; }
 
         private ObjectData ObjectData { get; }
 
-        private object TargetObject { get; }
+        private ObjectHost TargetHost { get; }
+        private object? TargetObject { get; set; }
 
-        public bool HasChanges => EditorElements.Any(x => x.HasChanges);
+        public bool HasChanges => ObjectEditorElements.Any(x => x.HasChanges);
 
         private string? ConfirmCloseUnsavedString { get; set; } = null;
         private bool TriedToCloseUnsaved { get; set; } = false;
@@ -47,22 +50,26 @@ namespace ROM.UserInteraction.InroomManagement
 
         #region Constructors
         public EditRoomObjectWindow(ModMountController owningController,
-            ObjectData objectData, object targetObject, IEnumerable<IObjectEditorElement> editorElements, RoomCamera? roomCamera, FContainer? container)
+            ObjectData objectData, ObjectHost objectHost, Func<object, IEnumerable<IObjectEditorElement>> objectElementsFactory, RoomCamera? roomCamera, FContainer? container)
         {
             WindowHeader = objectData.FilePath;
 
             _windowRect = new(100, 100, 300, 300);
 
             OwningController = owningController;
+            ObjectEditorElementsFactory = objectElementsFactory;
 
+            TargetHost = objectHost;
             ObjectData = objectData;
-            TargetObject = targetObject;
-            EditorElements = editorElements.ToList();
+
+            objectHost.Object.TryGetTarget(out object? obj);
+            TargetObject = obj;
 
             RoomCamera = roomCamera;
-           
 
-            foreach (var item in EditorElements)
+            RegenerateObjectEditorElements();
+
+            foreach (var item in ObjectEditorElements)
             {
                 item.ReceiveFContainer(container);
             }
@@ -71,6 +78,19 @@ namespace ROM.UserInteraction.InroomManagement
         #endregion
 
         #region Methods
+        [MemberNotNull(nameof(ObjectEditorElements))]
+        private void RegenerateObjectEditorElements()
+        {
+            if (TargetObject != null)
+            {
+                ObjectEditorElements = ObjectEditorElementsFactory(TargetObject).ToList();
+            }
+            else
+            {
+                ObjectEditorElements = [];
+            }
+        }
+
         protected override void WindowFunction(int id)
         {
             GUILayout.BeginVertical();
@@ -78,12 +98,19 @@ namespace ROM.UserInteraction.InroomManagement
             _propertiesScrollState = GUILayout.BeginScrollView(_propertiesScrollState);
             GUILayout.BeginVertical();
 
-            GUILayout.EndVertical();
-
-            foreach(IObjectEditorElement element in EditorElements)
+            if (TargetObject != null)
             {
-                element.Draw(RoomCamera);
+                foreach (IObjectEditorElement element in ObjectEditorElements)
+                {
+                    element.Draw(RoomCamera);
+                }
             }
+            else
+            {
+                GUILayout.Label("The object is not created. Spawning conditions were not met or an error occurred while spawning.");
+            }
+
+            GUILayout.EndVertical();
 
             GUILayout.EndScrollView();
 
@@ -145,10 +172,12 @@ namespace ROM.UserInteraction.InroomManagement
         public void Save()
         {
             ITypeOperator typeOperator = ObjectData.GetTypeOperator();
-            ObjectData.DataJson = typeOperator.Save(TargetObject);
+
+            if (TargetObject != null) ObjectData.DataJson = typeOperator.Save(TargetObject);
+
             ObjectData.Save();
 
-            foreach (IObjectEditorElement editorElement in EditorElements)
+            foreach (IObjectEditorElement editorElement in ObjectEditorElements)
             {
                 editorElement.OnSaved();
             }
@@ -177,7 +206,7 @@ namespace ROM.UserInteraction.InroomManagement
 
         private void ResetChangesClick()
         {
-            foreach (IObjectEditorElement editorElement in EditorElements)
+            foreach (IObjectEditorElement editorElement in ObjectEditorElements)
             {
                 editorElement.ResetChanges();
             }
@@ -187,7 +216,7 @@ namespace ROM.UserInteraction.InroomManagement
 
         public void Close()
         {
-            foreach(IObjectEditorElement editorElement in EditorElements)
+            foreach(IObjectEditorElement editorElement in ObjectEditorElements)
             {
                 editorElement.Terminate();
             }
@@ -198,7 +227,7 @@ namespace ROM.UserInteraction.InroomManagement
 
         protected override void PostCall()
         {
-            foreach (IObjectEditorElement objectEditorElement in EditorElements)
+            foreach (IObjectEditorElement objectEditorElement in ObjectEditorElements)
             {
                 objectEditorElement.DrawPostWindow(RoomCamera);
             }
