@@ -58,6 +58,8 @@ namespace ROM.RoomObjectService
                         {
                             host.SpawningCondition = conditionOperator.Load(objectData.SpawningConditionDataJson);
                         }
+
+                        SpawnedObjectsTracker.Add(objectData, host);
                     }
 
 
