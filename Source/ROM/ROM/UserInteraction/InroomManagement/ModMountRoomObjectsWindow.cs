@@ -46,7 +46,6 @@ namespace ROM.UserInteraction.InroomManagement
             }
         }
 
-        private bool IsCollapsed { get; set; }
         private RegistryMountListWindow OwnerWindow { get; }
 
         private string NewObjectFilePathWithExtension => NewObjectFilePath + ".json";
@@ -112,6 +111,7 @@ namespace ROM.UserInteraction.InroomManagement
         public ModMountRoomObjectsWindow(ModMountController modMountController, RegistryMountListWindow registryMountListWindow)
         {
             _windowRect = new Rect(100, 100, 400, 600);
+            _collapsedRect.width = 200;
 
             ModMountController = modMountController;
             OwnerWindow = registryMountListWindow;
