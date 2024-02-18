@@ -46,7 +46,6 @@ namespace ROM.UserInteraction.InroomManagement
             }
         }
 
-        private bool IsCollapsed { get; set; }
         private RegistryMountListWindow OwnerWindow { get; }
 
         private string NewObjectFilePathWithExtension => NewObjectFilePath + ".json";
@@ -98,7 +97,7 @@ namespace ROM.UserInteraction.InroomManagement
         private ObjectData? ConfirmCloseWindowUnsaved { get; set; } = null;
         private ObjectData? ConfirmDeletingObject { get; set; } = null;
         /// <summary>
-        /// Delete the <see cref="ConfirmDeletingObject"/>?
+        /// Delete the <see cref="ConfirmDeletingObject"/>?f
         /// </summary>
         private bool DeleteObjectConfirmed { get; set; } = false;
 
@@ -112,6 +111,7 @@ namespace ROM.UserInteraction.InroomManagement
         public ModMountRoomObjectsWindow(ModMountController modMountController, RegistryMountListWindow registryMountListWindow)
         {
             _windowRect = new Rect(100, 100, 400, 600);
+            _collapsedRect.width = 200;
 
             ModMountController = modMountController;
             OwnerWindow = registryMountListWindow;
@@ -128,6 +128,7 @@ namespace ROM.UserInteraction.InroomManagement
                 if (ModMountController.CurrentRoomObjectsList != PreviousExistingObjectsList)
                 {
                     ExistingObjectsFilter.SetOptions(ModMountController.CurrentRoomObjectsList.Select(CreateObjectDataOption));
+                    PreviousExistingObjectsList = ModMountController.CurrentRoomObjectsList;
                 }
 
                 GUILayout.BeginVertical();

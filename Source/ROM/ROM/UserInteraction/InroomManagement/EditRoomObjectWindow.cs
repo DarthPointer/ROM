@@ -216,7 +216,12 @@ namespace ROM.UserInteraction.InroomManagement
 
         public void Close()
         {
-            foreach(IObjectEditorElement editorElement in ObjectEditorElements)
+            foreach (IObjectEditorElement editorElement in ObjectEditorElements)
+            {
+                editorElement.ResetChanges();
+            }
+
+            foreach (IObjectEditorElement editorElement in ObjectEditorElements)
             {
                 editorElement.Terminate();
             }
