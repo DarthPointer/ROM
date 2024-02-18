@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ROM.RoomObjectService.SpawningCondition.CampaignId
 {
-    public class CampaignIdsSpawningCondition : ISpawningCondition
+    public class CampaignIdSpawningCondition : ISpawningCondition
     {
         public bool IsWhitelist { get; set; }
 

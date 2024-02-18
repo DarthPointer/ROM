@@ -9,28 +9,28 @@ using System.Threading.Tasks;
 
 namespace ROM.RoomObjectService.SpawningCondition.CampaignId
 {
-    public class CampaignIdOperator : SpawningConditionOperator<CampaignIdsSpawningCondition>
+    public class CampaignIdOperator : SpawningConditionOperator<CampaignIdSpawningCondition>
     {
         public override string ConditionTypeId => "CampaignId";
 
-        public override CampaignIdsSpawningCondition CreateNew()
+        public override CampaignIdSpawningCondition CreateNew()
         {
-            return new CampaignIdsSpawningCondition();
+            return new CampaignIdSpawningCondition();
         }
 
-        public override CampaignIdsSpawningCondition Load(JToken conditionData)
+        public override CampaignIdSpawningCondition Load(JToken conditionData)
         {
             throw new NotImplementedException();
         }
 
-        public override JToken Save(CampaignIdsSpawningCondition conditionData)
+        public override JToken Save(CampaignIdSpawningCondition conditionData)
         {
             throw new NotImplementedException();
         }
 
-        public override IEnumerable<IObjectEditorElement> GetEditorElements(CampaignIdsSpawningCondition condition)
+        public override IEnumerable<IObjectEditorElement> GetEditorElements(CampaignIdSpawningCondition condition)
         {
-            yield return Elements.Checkbox(nameof(CampaignIdsSpawningCondition.IsWhitelist),
+            yield return Elements.Checkbox(nameof(CampaignIdSpawningCondition.IsWhitelist),
                 getter: () => condition.IsWhitelist,
                 setter: val => condition.IsWhitelist = val);
         }
