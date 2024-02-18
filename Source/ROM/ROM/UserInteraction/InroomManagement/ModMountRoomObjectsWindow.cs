@@ -98,7 +98,7 @@ namespace ROM.UserInteraction.InroomManagement
         private ObjectData? ConfirmCloseWindowUnsaved { get; set; } = null;
         private ObjectData? ConfirmDeletingObject { get; set; } = null;
         /// <summary>
-        /// Delete the <see cref="ConfirmDeletingObject"/>?
+        /// Delete the <see cref="ConfirmDeletingObject"/>?f
         /// </summary>
         private bool DeleteObjectConfirmed { get; set; } = false;
 
@@ -128,6 +128,7 @@ namespace ROM.UserInteraction.InroomManagement
                 if (ModMountController.CurrentRoomObjectsList != PreviousExistingObjectsList)
                 {
                     ExistingObjectsFilter.SetOptions(ModMountController.CurrentRoomObjectsList.Select(CreateObjectDataOption));
+                    PreviousExistingObjectsList = ModMountController.CurrentRoomObjectsList;
                 }
 
                 GUILayout.BeginVertical();
