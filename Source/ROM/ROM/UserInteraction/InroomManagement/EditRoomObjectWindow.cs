@@ -1,6 +1,8 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json.Bson;
+using Newtonsoft.Json.Linq;
 using ROM.ObjectDataStorage;
 using ROM.RoomObjectService;
+using ROM.RoomObjectService.SpawningCondition;
 using ROM.UserInteraction.ModMountManagement;
 using System;
 using System.Collections.Generic;
@@ -33,13 +35,20 @@ namespace ROM.UserInteraction.InroomManagement
 
         private IReadOnlyList<IObjectEditorElement> ObjectEditorElements { get; set; }
         private Func<object, IEnumerable<IObjectEditorElement>> ObjectEditorElementsFactory { get; }
+        private IReadOnlyList<IObjectEditorElement> SpawningConditionEditorElements { get; set; }
+        private EditSpawningConditionWindow? EditSpawningConditionWindow { get; set; }
+        private bool SelectedConditionTypeChangeNotSaved { get; set; } = false;
+        private FContainer? FContainer { get; }
 
         private ObjectData ObjectData { get; }
 
         private ObjectHost TargetHost { get; }
         private object? TargetObject { get; set; }
 
-        public bool HasChanges => ObjectEditorElements.Any(x => x.HasChanges);
+        public bool HasChanges =>
+            SelectedConditionTypeChangeNotSaved ||
+            ObjectEditorElements.Any(x => x.HasChanges) ||
+            SpawningConditionEditorElements.Any(x => x.HasChanges);
 
         private string? ConfirmCloseUnsavedString { get; set; } = null;
         private bool TriedToCloseUnsaved { get; set; } = false;
@@ -65,9 +74,11 @@ namespace ROM.UserInteraction.InroomManagement
             objectHost.Object.TryGetTarget(out object? obj);
             TargetObject = obj;
 
+            FContainer = container;
             RoomCamera = roomCamera;
 
             RegenerateObjectEditorElements();
+            RegenerateSpawningConditionEditorElements();
 
             foreach (var item in ObjectEditorElements)
             {
@@ -88,6 +99,26 @@ namespace ROM.UserInteraction.InroomManagement
             else
             {
                 ObjectEditorElements = [];
+            }
+        }
+
+        [MemberNotNull(nameof(SpawningConditionEditorElements))]
+        private void RegenerateSpawningConditionEditorElements()
+        {
+            if (ObjectData.SpawningConditionTypeId != null &&
+                TargetHost.SpawningCondition != null &&
+                SpawningConditionOperator.ConditionTypeOperators.TryGetValue(ObjectData.SpawningConditionTypeId, out ISpawningConditionOperator spawningConditionOperator))
+            {
+                SpawningConditionEditorElements = spawningConditionOperator.GetEditorElements(TargetHost.SpawningCondition).ToList();
+
+                foreach (IObjectEditorElement element in SpawningConditionEditorElements)
+                {
+                    element.ReceiveFContainer(FContainer);
+                }
+            }
+            else
+            {
+                SpawningConditionEditorElements = [];
             }
         }
 
@@ -175,14 +206,36 @@ namespace ROM.UserInteraction.InroomManagement
 
             if (TargetObject != null) ObjectData.DataJson = typeOperator.Save(TargetObject);
 
-            ObjectData.Save();
+            if (ObjectData.SpawningConditionTypeId != null &&
+                TargetHost.SpawningCondition != null &&
+                SpawningConditionOperator.ConditionTypeOperators.TryGetValue(ObjectData.SpawningConditionTypeId, out var spawningConditionOperator))
+            {
+                ObjectData.SpawningConditionDataJson = spawningConditionOperator.Save(TargetHost.SpawningCondition);
+            }
+            else
+            {
+                ObjectData.SpawningConditionDataJson = null;
+            }
+
+            SaveCurrentObjectDataState();
 
             foreach (IObjectEditorElement editorElement in ObjectEditorElements)
             {
                 editorElement.OnSaved();
             }
 
+            foreach (IObjectEditorElement conditionEditorElement in SpawningConditionEditorElements)
+            {
+                conditionEditorElement.OnSaved();
+            }
+
             TriedToCloseUnsaved = false;
+        }
+
+        public void SaveCurrentObjectDataState()
+        {
+            ObjectData.Save();
+            SelectedConditionTypeChangeNotSaved = false;
         }
 
         private void CloseClick()
@@ -211,6 +264,11 @@ namespace ROM.UserInteraction.InroomManagement
                 editorElement.ResetChanges();
             }
 
+            foreach (IObjectEditorElement conditionEditorElement in SpawningConditionEditorElements)
+            {
+                conditionEditorElement.ResetChanges();
+            }
+
             TriedToCloseUnsaved = false;
         }
 
@@ -225,6 +283,18 @@ namespace ROM.UserInteraction.InroomManagement
             {
                 editorElement.Terminate();
             }
+
+            foreach (IObjectEditorElement conditionEditorElement in SpawningConditionEditorElements)
+            {
+                conditionEditorElement.ResetChanges();
+            }
+
+            foreach (IObjectEditorElement conditionEditorElement in SpawningConditionEditorElements)
+            {
+                conditionEditorElement.Terminate();
+            }
+
+            EditSpawningConditionWindow?.Close();
 
             this.RemoveFromContainer();
             OwningController.RemoveWindowForObject(ObjectData);

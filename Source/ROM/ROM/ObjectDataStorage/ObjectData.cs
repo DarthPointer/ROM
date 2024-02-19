@@ -131,6 +131,22 @@ namespace ROM.ObjectDataStorage
             throw new Exception(typeNotFoundErrorText);
         }
 
+        public ISpawningConditionOperator GetSpawningConditionOperator()
+        {
+            if (SpawningConditionTypeId != null && SpawningConditionOperator.ConditionTypeOperators.
+                TryGetValue(SpawningConditionTypeId, out ISpawningConditionOperator spawningConditionOperator))
+            {
+                return spawningConditionOperator;
+            }
+
+            string typeNotFoundErrorText = SpawningConditionTypeId == null ? 
+                $"Can not get spawning condition type because {nameof(SpawningConditionTypeId)} is null" :
+                $"Can not get spawning condition type {SpawningConditionTypeId} because it is not registered.";
+
+            ROMPlugin.Logger?.LogError(typeNotFoundErrorText);
+            throw new Exception(typeNotFoundErrorText);
+        }
+
         public static string GetPrimarySourceFilePath(ModManager.Mod mod, string objectFilePath)
         {
             return Path.Combine(mod.path, mod.id, objectFilePath);
