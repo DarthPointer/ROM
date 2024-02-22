@@ -127,7 +127,7 @@ namespace ROM.UserInteraction.InroomManagement
             {
                 if (ModMountController.CurrentRoomObjectsList != PreviousExistingObjectsList)
                 {
-                    ExistingObjectsFilter.SetOptions(ModMountController.CurrentRoomObjectsList.Select(CreateObjectDataOption));
+                    ExistingObjectsFilter.SetOptions(ModMountController.CurrentRoomObjectsList?.Select(CreateObjectDataOption) ?? []);
                     PreviousExistingObjectsList = ModMountController.CurrentRoomObjectsList;
                 }
 
