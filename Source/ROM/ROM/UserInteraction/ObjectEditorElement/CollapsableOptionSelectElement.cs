@@ -94,6 +94,8 @@ namespace ROM.UserInteraction.ObjectEditorElement
         private T SavedOption { get; set; }
 
         public bool HasChanges => !Equals(SavedOption, Target);
+
+        private bool DisplayNullOption { get; }
         #endregion
 
         #region Constructors
@@ -104,7 +106,8 @@ namespace ROM.UserInteraction.ObjectEditorElement
         /// <param name="getter">The function to retrieve the current value from the object.</param>
         /// <param name="setter">The action to set the value.</param>
         /// <param name="options">The list of options to select from.</param>
-        public CollapsableOptionSelectElement(string header, Func<T> getter, Action<T> setter, IEnumerable<Option<T>> options)
+        public CollapsableOptionSelectElement(string header, Func<T> getter, Action<T> setter, IEnumerable<Option<T>> options,
+            bool displayNullOption = true)
         {
             Header = header;
             Controller = new OptionsFilter<T>(options);
@@ -129,6 +132,8 @@ namespace ROM.UserInteraction.ObjectEditorElement
 
             Getter = getter;
             Setter = setter;
+
+            DisplayNullOption = displayNullOption;
 
             SavedOption = Target;
         }
@@ -223,7 +228,8 @@ namespace ROM.UserInteraction.ObjectEditorElement
 
             foreach (Option<T> option in Controller.FilteredOptions)
             {
-                DrawOptionToSelect(option);
+                if (DisplayNullOption || option.Value is not null)
+                    DrawOptionToSelect(option);
             }
 
             GUILayout.EndVertical();

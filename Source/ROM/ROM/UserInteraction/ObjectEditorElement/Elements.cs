@@ -166,9 +166,9 @@ namespace ROM.UserInteraction.ObjectEditorElement
         /// <param name="options">The list of options.</param>
         /// <returns></returns>
         public static IObjectEditorElement CollapsableOptionSelect<T>(string header, Func<T> getter, Action<T> setter,
-            IEnumerable<Option<T>> options)
+            IEnumerable<Option<T>> options, bool displayNullOption = true)
         {
-            return new CollapsableOptionSelectElement<T>(header, getter, setter, options);
+            return new CollapsableOptionSelectElement<T>(header, getter, setter, options, displayNullOption);
         }
 
         /// <summary>
@@ -198,10 +198,10 @@ namespace ROM.UserInteraction.ObjectEditorElement
         /// <param name="setter">The action to set the value.</param>
         /// <param name="options">The list of options.</param>
         /// <returns></returns>
-        public static IObjectEditorElement CollapsableOptionSelect<T>(string header, Func<T> getter, Action<T> setter,
+        public static IObjectEditorElement CollapsableOptionSelect<T>(string header, Func<T> getter, Action<T> setter, bool displayNullOption,
             params Option<T>[] options)
         {
-            return CollapsableOptionSelect(header, getter, setter, options as IEnumerable<Option<T>>);
+            return CollapsableOptionSelect(header, getter, setter, options as IEnumerable<Option<T>>, displayNullOption);
         }
         #endregion
 

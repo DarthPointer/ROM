@@ -122,6 +122,7 @@ namespace ROMTestObjects.RoomObjects.Funny
 
             yield return Elements.CollapsableOptionSelect(nameof(FunnyObject.FunEnum),
                 getter: () => obj.FunEnum, setter: value => obj.FunEnum = value,
+                displayNullOption: true,
                 FunnyEnum.Fun, FunnyEnum.SuperFun);
 
             yield return Elements.Point(nameof(FunnyObject.Point), "p",

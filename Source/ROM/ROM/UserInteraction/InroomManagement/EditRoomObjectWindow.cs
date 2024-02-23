@@ -1,9 +1,11 @@
 ﻿using Newtonsoft.Json.Bson;
 using Newtonsoft.Json.Linq;
+using ROM.IMGUIUtilities;
 using ROM.ObjectDataStorage;
 using ROM.RoomObjectService;
 using ROM.RoomObjectService.SpawningCondition;
 using ROM.UserInteraction.ModMountManagement;
+using ROM.UserInteraction.ObjectEditorElement;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -37,16 +39,20 @@ namespace ROM.UserInteraction.InroomManagement
         private Func<object, IEnumerable<IObjectEditorElement>> ObjectEditorElementsFactory { get; }
         private IReadOnlyList<IObjectEditorElement> SpawningConditionEditorElements { get; set; }
         private EditSpawningConditionWindow? EditSpawningConditionWindow { get; set; }
-        private bool SelectedConditionTypeChangeNotSaved { get; set; } = false;
         private FContainer? FContainer { get; }
+
+        private IObjectEditorElement SpawningConditionTypeSelectionElement { get; }
 
         private ObjectData ObjectData { get; }
 
         private ObjectHost TargetHost { get; }
         private object? TargetObject { get; set; }
+        private bool SpawningConditionTypeSelectionIsExpanded { get; set; }
+
+        private bool SpawningConditionTypeChangeIsNotSaved { get; set; } = false;
 
         public bool HasChanges =>
-            SelectedConditionTypeChangeNotSaved ||
+            SpawningConditionTypeChangeIsNotSaved ||
             ObjectEditorElements.Any(x => x.HasChanges) ||
             SpawningConditionEditorElements.Any(x => x.HasChanges);
 
@@ -85,6 +91,15 @@ namespace ROM.UserInteraction.InroomManagement
                 item.ReceiveFContainer(container);
             }
 
+            SpawningConditionTypeSelectionElement =
+                Elements.CollapsableOptionSelect("Select spawning condition type",
+                    getter: () => null,
+                    setter: SetSpawningConditionType,
+
+                    SpawningConditionOperator.ConditionTypeOperators.Select(kvp => new Option<ISpawningConditionOperator?>(kvp.Value, kvp.Key)).
+                        Append(new Option<ISpawningConditionOperator?>(null, "")),
+                    
+                    displayNullOption: false);
         }
         #endregion
 
@@ -126,6 +141,8 @@ namespace ROM.UserInteraction.InroomManagement
         {
             GUILayout.BeginVertical();
 
+            DrawSpawningConditionHeader(RoomCamera);
+
             _propertiesScrollState = GUILayout.BeginScrollView(_propertiesScrollState);
             GUILayout.BeginVertical();
 
@@ -148,6 +165,19 @@ namespace ROM.UserInteraction.InroomManagement
             DrawSaveAndClose();
 
             GUILayout.EndVertical();
+        }
+
+        private void SetSpawningConditionType(ISpawningConditionOperator? spawningConditionOperator)
+        {
+
+        }
+
+        private void DrawSpawningConditionHeader(RoomCamera? roomCamera)
+        {
+            if (TargetHost.SpawningCondition == null)
+            {
+                SpawningConditionTypeSelectionElement.Draw(roomCamera);
+            }
         }
 
         private void DrawSaveAndClose()
@@ -235,7 +265,7 @@ namespace ROM.UserInteraction.InroomManagement
         public void SaveCurrentObjectDataState()
         {
             ObjectData.Save();
-            SelectedConditionTypeChangeNotSaved = false;
+            SpawningConditionTypeChangeIsNotSaved = false;
         }
 
         private void CloseClick()
@@ -264,9 +294,53 @@ namespace ROM.UserInteraction.InroomManagement
                 editorElement.ResetChanges();
             }
 
-            foreach (IObjectEditorElement conditionEditorElement in SpawningConditionEditorElements)
+            // If the spawning condition was removed/created since last save of its type.
+            if (SpawningConditionTypeChangeIsNotSaved)
             {
-                conditionEditorElement.ResetChanges();
+                // If the condition's id is set
+                if (ObjectData.SpawningConditionTypeId != null)
+                {
+                    // then we check if we have the rest of the data needed to restore its instance.
+                    if (SpawningConditionOperator.ConditionTypeOperators.TryGetValue(ObjectData.SpawningConditionTypeId, out var spawningConditionOperator) &&
+                    ObjectData.SpawningConditionDataJson != null)
+                    {
+                        TargetHost.SpawningCondition = spawningConditionOperator.Load(ObjectData.SpawningConditionDataJson);
+                        if (EditSpawningConditionWindow != null)
+                        {
+                            EditSpawningConditionWindow.Close();
+                        }
+                    }
+                    // If we don't then we just drop the condition and logspam.
+                    else
+                    {
+                        string failureReason = ObjectData.SpawningConditionDataJson != null ? "its data is null." : "this condition type is not registered.";
+
+                        ROMPlugin.Logger?.LogError($"Unable to restore a spawning condition of type {ObjectData.SpawningConditionTypeId} for {ObjectData.FullLogString} because " +
+                            failureReason);
+
+                        TargetHost.SpawningCondition = null;
+                        if (EditSpawningConditionWindow != null)
+                        {
+                            EditSpawningConditionWindow.Close();
+                        }
+                    }
+                }
+                // If the condition's type id is null then we just drop the current one.
+                {
+                    TargetHost.SpawningCondition = null;
+                    if (EditSpawningConditionWindow != null)
+                    {
+                        EditSpawningConditionWindow.Close();
+                    }
+                }
+            }
+            // If the last condition set/removal is has been saved, then the changes are only reset inside it.
+            else
+            {
+                foreach (IObjectEditorElement conditionEditorElement in SpawningConditionEditorElements)
+                {
+                    conditionEditorElement.ResetChanges();
+                }
             }
 
             TriedToCloseUnsaved = false;
