@@ -169,7 +169,7 @@ namespace ROM.UserInteraction.ModMountManagement
             }
 
             SpawningManager.SpawnedObjectsTracker.Remove(newObjectData);
-            SpawningManager.SpawnedObjectsTracker.Add(newObjectData, new ObjectHost() { Object = new WeakReference<object>(newObject) });
+            SpawningManager.SpawnedObjectsTracker.Add(newObjectData, new ObjectHost() { Object = new WeakReference<object?>(newObject) });
             try
             {
                 typeOperator.AddToRoom(newObject, ContextRoom);
@@ -204,8 +204,8 @@ namespace ROM.UserInteraction.ModMountManagement
         {
             AssertContextRoomNotNull();
 
-            if (SpawningManager.SpawnedObjectsTracker.TryGetValue(objectData, out var objRef) &&
-                    objRef.Object.TryGetTarget(out object obj))
+            if (SpawningManager.SpawnedObjectsTracker.TryGetValue(objectData, out ObjectHost objectHost) &&
+                    objectHost.Object.TryGetTarget(out object? obj) && obj != null)
             {
                 try
                 {
