@@ -51,6 +51,9 @@ namespace ROM
             }
 
             Logger.LogInfo("ROM UI windows container created");
+
+            BuiltinTypeReistration.RegisterObjectTypes();
+            BuiltinTypeReistration.RegisterSpawningConditionTypes();
         }
 
         public void Update()

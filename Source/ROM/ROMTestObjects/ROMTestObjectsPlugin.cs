@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using BepInEx;
 using ROM.RoomObjectService;
 using ROMTestObjects.RoomObjects.Funny;
+using ROM.RoomObjectService.SpawningCondition;
 
 #pragma warning disable CS0618
 [assembly: SecurityPermission(SecurityAction.RequestMinimum, SkipVerification = true)]
