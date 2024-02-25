@@ -141,10 +141,10 @@ namespace ROM.UserInteraction.InroomManagement
         {
             GUILayout.BeginVertical();
 
-            DrawSpawningConditionHeader(RoomCamera);
-
             _propertiesScrollState = GUILayout.BeginScrollView(_propertiesScrollState);
             GUILayout.BeginVertical();
+
+            DrawSpawningConditionHeader(RoomCamera);
 
             if (TargetObject != null)
             {
