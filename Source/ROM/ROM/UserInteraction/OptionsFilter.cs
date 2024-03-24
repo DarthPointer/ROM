@@ -94,7 +94,7 @@ namespace ROM.UserInteraction
 
         public int RemoveOption(TOption option)
         {
-            int result = AllOptionsList.RemoveAll(opt => Equals(opt, option));
+            int result = AllOptionsList.RemoveAll(opt => Equals(opt.Value, option));
 
             if (result != 0)
                 UpdateFilteredOptions();
